@@ -3,18 +3,18 @@ import './App.css';
 
 
 function Main() {
-    const apiUrl = process.env.REACT_APP_API_URL;
+    const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items/';
 
-    const getGroops = async () => {
-        const getUrl = apiUrl;
-        const response = await fetch(apiUrl, {
+    const getGroops = async (groopIdInput) => {
+        let groopId = groopIdInput;
+        groopId = groopId.toString()
+        const getUrl = apiUrl + groopId;
+        const response = await fetch(getUrl, {
             method: 'GET'
         })
         console.log(response)
         const data = await response.json();
         console.log('Data:', data);
-        
-
     };
 
     return (
@@ -29,7 +29,7 @@ function Main() {
                 >
                     Learn React
                 </a>
-                <button onClick={getGroops}>button here</button>
+                <button onClick={() => getGroops(34)}>button here</button>
                 <p className='flex items-center'>
                     Edit <code>src/App.js</code> and save to reload.
                 </p>
