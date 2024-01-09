@@ -15,7 +15,7 @@ function Main() {
                 >
                     Learn React
                 </a>
-                <p>
+                <p className='flex items-center'>
                     Edit <code>src/App.js</code> and save to reload.
                 </p>
             </header>
