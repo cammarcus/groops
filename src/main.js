@@ -1,9 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
-
+import { useState, useEffect } from 'react';
+import Tile from './components/tile';
 
 function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items/';
+    const [groops, setGroops] = useState(['hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi', 'hi']);
 
     const getGroops = async (groopIdInput) => {
         let groopId = groopIdInput;
@@ -14,26 +16,26 @@ function Main() {
         })
         console.log(response)
         const data = await response.json();
-        console.log('Data:', data);
+        console.log('Data:', data['Items'][0]);
     };
+
+    useEffect(()=> {
+        let groopIdInput = 34;
+        getGroops(groopIdInput);
+    },[])
 
     return (
         <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-                <button onClick={() => getGroops(34)}>button here</button>
-                <p className='flex items-center'>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-            </header>
+            <div className="grid grid-cols-4 gap-4" id="tile-container">
+                {groops.map((item, index) => (
+                    <div key={index}>
+                        <Tile tilename={item}></Tile>
+                    </div>
+                ))}
+            </div>
+            <button>shuffle</button>
+            <button>new set</button>
+            <button>enter</button>
         </div>
     );
 }
