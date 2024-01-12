@@ -10,7 +10,9 @@ function Main() {
     const [groopThreeName, setGroopThreeName] = useState('');
     const [groopFourName, setGroopFourName] = useState('');
     const [loading, setLoading] = useState(true);
-    const [selectedTiles, setSelectedTiles] = useState([])
+    const [selectedTiles, setSelectedTiles] = useState([]);
+    const [attempt, setAttempt] = useState(0);
+    const [attemptsRemaining, setAttemptsRemaining] = useState(4);
 
     const getGroops = async (groopIdInput) => {
         setLoading(true);
@@ -55,10 +57,29 @@ function Main() {
 
     const enter = async () => {
         console.log('enter clicked')
-
+        let groopsCounter = [0,0,0,0,0]
+        let tileOne = groops[selectedTiles[0]];
+        let tileTwo = groops[selectedTiles[1]];
+        let tileThree = groops[selectedTiles[2]];
+        let tileFour = groops[selectedTiles[3]];
+        console.log(groops[tileOne])
+        groopsCounter[tileOne] += 1
+        groopsCounter[tileTwo] += 1
+        groopsCounter[tileThree] += 1
+        groopsCounter[tileFour] += 1
+        console.log(groopsCounter)
+        if (groopsCounter.includes(3)) {
+            console.log('One away');
+        } else if (groopsCounter.includes(4)) {
+            console.log('Got it');
+        } else {
+            console.log('no')
+        }
         //console.log('correct')
         //console.log('one away')
         //console.log('nope')
+        setAttempt(attempt + 1);
+        setSelectedTiles([]);
     }
 
     useEffect(() => {
@@ -75,7 +96,7 @@ function Main() {
                 <div className="grid grid-cols-4 gap-4" id="tile-container">
                     {Object.entries(groops).map(([key, value]) => (
                         <div key={key}>
-                            <Tile tilename={key} groopNum={value} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles}></Tile>
+                            <Tile tilename={key} groopNum={value} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
                         </div>
                     ))}
                 </div>
@@ -88,7 +109,13 @@ function Main() {
             </div>
             <button>shuffle</button>
             <button>new set</button>
-            <button onClick={enter}>enter</button>
+            <div>
+                {selectedTiles.length === 4 ? (
+                    <button onClick={enter}>enter</button>
+                ) : (
+                    <p>cant click enter</p>
+                )}
+            </div>
         </div>
     );
 }

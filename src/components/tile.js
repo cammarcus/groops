@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-function Tile({tilename, groupNum, selectedTiles, setSelectedTiles}) {
+function Tile({tilename, groupNum, selectedTiles, setSelectedTiles, attempt}) {
 
     const[clicked, setClicked] = useState(false);
+
+    useEffect(() => {
+        setClicked(false);
+    }, [attempt])
 
     const tileClicked = async () => {
         if (clicked) {
@@ -12,12 +16,9 @@ function Tile({tilename, groupNum, selectedTiles, setSelectedTiles}) {
             if (selectedTiles.length < 4) {
                 setSelectedTiles(selectedTiles => selectedTiles.concat(tilename));
                 setClicked(!clicked)
-            } else {
-                console.log('we cant add')
             }
         }
     }
-
 
     return (
         <button onClick={tileClicked}>
