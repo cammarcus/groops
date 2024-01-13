@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import Tile from './components/tile';
 
 function Main() {
-    const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items/';
+    const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
     const [groops, setGroops] = useState({});
+    const [orderedGroopsArray, setOrderedGroopsArray] = useState([]);
     const [groopOneName, setGroopOneName] = useState('');
     const [groopTwoName, setGroopTwoName] = useState('');
     const [groopThreeName, setGroopThreeName] = useState('');
@@ -16,44 +17,64 @@ function Main() {
 
     const getGroops = async (groopIdInput) => {
         setLoading(true);
-        let groopId = groopIdInput;
-        groopId = groopId.toString()
-        const getUrl = apiUrl + groopId;
+        let getUrl = apiUrl
+        if (groopIdInput) {
+            getUrl = getUrl + '/' + groopIdInput.toString();
+        }
         const response = await fetch(getUrl, {
             method: 'GET'
         })
         const data = await response.json();
-        console.log('Data:', data['Items'][0]);
         let groops_data = data['Items'][0];
         let groop_one_values_array = groops_data['groop_one_values']['SS']
         let groop_two_values_array = groops_data['groop_two_values']['SS']
         let groop_three_values_array = groops_data['groop_three_values']['SS']
         let groop_four_values_array = groops_data['groop_four_values']['SS']
         let newGroops = {};
+        let newOrderedGroopsArray = []
         for (let i = 0; i < groop_one_values_array.length; i++) {
             let currVal = groop_one_values_array[i]
             newGroops = { ...newGroops, [currVal]: 1 };
+            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
         }
         for (let i = 0; i < groop_two_values_array.length; i++) {
             let currVal = groop_two_values_array[i]
             newGroops = { ...newGroops, [currVal]: 2 };
+            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
         }
         for (let i = 0; i < groop_three_values_array.length; i++) {
             let currVal = groop_three_values_array[i]
             newGroops = { ...newGroops, [currVal]: 3 };
+            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
         }
         for (let i = 0; i < groop_four_values_array.length; i++) {
             let currVal = groop_four_values_array[i]
             newGroops = { ...newGroops, [currVal]: 4 };
+            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
         }
         //TODO: shuffle
+        let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
         setGroopOneName(groops_data['groop_one_name']['S'])
         setGroopTwoName(groops_data['groop_two_name']['S'])
         setGroopThreeName(groops_data['groop_three_name']['S'])
         setGroopFourName(groops_data['groop_four_name']['S'])
         setGroops(newGroops);
+        setOrderedGroopsArray(shuffledOrderedGroopsArray);
         setLoading(false);
     };
+
+    function shuffleArray(originalArray) {
+        // Create a copy of the original array to avoid modifying it directly
+        const shuffledArray = [...originalArray];
+      
+        // Fisher-Yates shuffle algorithm
+        for (let i = shuffledArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+        }
+      
+        return shuffledArray;
+      }
 
     const enter = async () => {
         console.log('enter clicked')
@@ -83,7 +104,8 @@ function Main() {
     }
 
     useEffect(() => {
-        let groopIdInput = 34;
+        //TODO: if want random, use null, if not, use the value
+        let groopIdInput = 390876;
         getGroops(groopIdInput);
 
     }, [])
@@ -94,9 +116,9 @@ function Main() {
             <div>
                 {!loading ? (
                 <div className="grid grid-cols-4 gap-4" id="tile-container">
-                    {Object.entries(groops).map(([key, value]) => (
+                    {orderedGroopsArray.map((key, index) => (
                         <div key={key}>
-                            <Tile tilename={key} groopNum={value} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
+                            <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
                         </div>
                     ))}
                 </div>
