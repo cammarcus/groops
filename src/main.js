@@ -63,6 +63,11 @@ function Main() {
         setLoading(false);
     };
 
+    const shuffleGroops = () => {
+        let shuffledOrderedGroopsArray = shuffleArray(orderedGroopsArray);
+        setOrderedGroopsArray(shuffledOrderedGroopsArray);
+    }
+
     function shuffleArray(originalArray) {
         // Create a copy of the original array to avoid modifying it directly
         const shuffledArray = [...originalArray];
@@ -105,7 +110,7 @@ function Main() {
 
     useEffect(() => {
         //TODO: if want random, use null, if not, use the value
-        let groopIdInput = 390876;
+        let groopIdInput = null;
         getGroops(groopIdInput);
 
     }, [])
@@ -129,7 +134,7 @@ function Main() {
                 )
                 }
             </div>
-            <button>shuffle</button>
+            <button onClick={shuffleGroops}>shuffle</button>
             <button>new set</button>
             <div>
                 {selectedTiles.length === 4 ? (
