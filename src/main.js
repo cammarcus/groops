@@ -84,30 +84,24 @@ function Main() {
     }
 
     const enter = async () => {
-        console.log('enter clicked')
         let groopsCounter = [0, 0, 0, 0, 0]
         let tileOne = groops[selectedTiles[0]];
         let tileTwo = groops[selectedTiles[1]];
         let tileThree = groops[selectedTiles[2]];
         let tileFour = groops[selectedTiles[3]];
-        console.log(groops[tileOne])
         groopsCounter[tileOne] += 1
         groopsCounter[tileTwo] += 1
         groopsCounter[tileThree] += 1
         groopsCounter[tileFour] += 1
-        console.log(groopsCounter)
         if (groopsCounter.includes(3)) {
-            console.log('One away');
+            //TODO: add one away graphic
+            oneAway();
         } else if (groopsCounter.includes(4)) {
             correct();
         } else {
             wrong();
         }
-        //console.log('correct')
-        //console.log('one away')
-        //console.log('nope')
         setAttempt(attempt + 1);
-        setSelectedTiles([]);
     }
 
     const correct = async () => {
@@ -117,7 +111,11 @@ function Main() {
 
     const wrong = async () => {
         //filter groops here (filter array and dictionary)
-        setSelectedTiles([]);
+        setAttemptsRemaining(attemptsRemaining - 1);
+    }
+
+    const oneAway = async () => {
+        //filter groops here (filter array and dictionary)
         setAttemptsRemaining(attemptsRemaining - 1);
     }
 
@@ -129,7 +127,6 @@ function Main() {
                 style={{ fontSize: '24px' }}
             />
         ));
-
         return <div className="flex">{icons}</div>;
     };
 
@@ -151,18 +148,20 @@ function Main() {
                 </div>
             </div>
             <div className="border-b border-gray-300"></div>
-            <div>
+            <div className='flex justify-center items-center flex-col'>
                 <div className='p-4'>
                     <p>
                         Create four groops of four!
                     </p>
                 </div>
-                <div className="grid grid-cols-4 gap-4" id="tile-container">
-                    {orderedGroopsArray.map((key, index) => (
-                        <div key={key}>
-                            <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
-                        </div>
-                    ))}
+                <div className='flex w-full p-4 max-w-[120ch]'>
+                    <div className="flex w-full grid grid-cols-4 gap-2" id="tile-container">
+                        {orderedGroopsArray.map((key, index) => (
+                            <div key={key}>
+                                <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
             <div className='flex items-center justify-center gap-4 pt-8'>
@@ -173,20 +172,20 @@ function Main() {
                     <DynamicIcons count={attemptsRemaining} maxCount={4} />
                 </div>
             </div>
-            <div className='flex items-center justify-center gap-4 py-2'>
-                <button className='border-2 border-neutral-800 rounded-full p-2' onClick={shuffleGroops}>
+            <div className='flex items-center justify-center gap-4 py-4'>
+                <button className='border-2 border-neutral-800 rounded-full p-3' onClick={shuffleGroops}>
                     shuffle
                 </button>
-                <button className='border-2 border-neutral-800 rounded-full p-2' onClick={() => { setNewSetModalOpen(true) }}>
+                <button className='border-2 border-neutral-800 rounded-full p-3' onClick={() => { setNewSetModalOpen(true) }}>
                     new set
                 </button>
                 <div>
                     {selectedTiles.length === 4 ? (
-                        <button className='border-2 border-neutral-800 rounded-full p-2' onClick={enter}>
+                        <button className='border-2 border-neutral-800 rounded-full p-3' onClick={enter}>
                             submit
                         </button>
                     ) : (
-                        <div className='select-none pointer-events-none border-2 border-neutral-500 rounded-full p-2 text-neutral-500'>
+                        <div className='select-none pointer-events-none border-2 border-neutral-500 rounded-full p-3 text-neutral-500'>
                             submit
                         </div>
                     )}
