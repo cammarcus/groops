@@ -18,21 +18,22 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
     const handleBounce = async () => {
         // Animate the shaking effect
         await controls.start({
-            y: [-5, 0], // Move up once
-            transition: { duration: .8, ease: 'easeInOut' },
+            y: [-10, 0], // Move up once
+            transition: { duration: .5, ease: 'easeInOut' },
         });
     };
 
     useEffect(() => {
-        //setClicked(false);
-        let delay = 0
+        //figure out which index it is of selected tiles
+        let tileIndex = selectedTiles.indexOf(tilename);
+        let delay = 150 * tileIndex;
+        console.log(delay)
         setTimeout(() => {
             if (clicked) {
                 handleBounce();
             }
           }, delay);
     }, [attempt])
-
 
     useEffect(() => {
         //setClicked(false);
