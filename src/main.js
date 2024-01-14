@@ -2,6 +2,7 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import Tile from './components/tile';
 import { GoDotFill } from "react-icons/go";
+import { motion, useAnimation } from 'framer-motion';
 
 function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
@@ -165,8 +166,8 @@ function Main() {
                         Create four groops of four!
                     </p>
                 </div>
-                <div className='flex w-full p-4 max-w-[120ch]'>
-                    <div className="flex w-full grid grid-cols-4 gap-2" id="tile-container">
+                <div className='flex w-full sm:p-4 p-1 max-w-[120ch]'>
+                    <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
                         {orderedGroopsArray.map((key, index) => (
                             <div key={key}>
                                 <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
