@@ -97,6 +97,7 @@ function Main() {
             //TODO: add one away graphic
             oneAway();
         } else if (groopsCounter.includes(4)) {
+            console.log('correct')
             correct();
         } else {
             wrong();
@@ -106,6 +107,16 @@ function Main() {
 
     const correct = async () => {
         //filter groops here (filter array and dictionary)
+        //groops
+        //ordered groops array
+        //figure out which 
+        let newGroopsDict = Object.fromEntries(
+            Object.entries(groops).filter(([key]) => !selectedTiles.includes(key))
+        );
+        const newOrderedGroopsArray = orderedGroopsArray.filter(value => !selectedTiles.includes(value));
+        console.log(newGroopsDict);
+        setGroops(newGroopsDict);
+        setOrderedGroopsArray(newOrderedGroopsArray);
         setSelectedTiles([]);
     }
 
