@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 
-function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRemaining }) {
+function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRemaining, attempt }) {
 
     const [clicked, setClicked] = useState(false);
     const controls = useAnimation();
@@ -14,11 +14,33 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
             transition: { duration: 0.5, ease: 'easeInOut' },
         });
     };
+
+    const handleBounce = async () => {
+        // Animate the shaking effect
+        await controls.start({
+            y: [-5, 0], // Move up once
+            transition: { duration: .8, ease: 'easeInOut' },
+        });
+    };
+
     useEffect(() => {
         //setClicked(false);
-        if (clicked) {
-            handleShake();
-        }
+        let delay = 0
+        setTimeout(() => {
+            if (clicked) {
+                handleBounce();
+            }
+          }, delay);
+    }, [attempt])
+
+
+    useEffect(() => {
+        //setClicked(false);
+        setTimeout(() => {
+            if (clicked) {
+                handleShake();
+            }
+          }, 1000);
     }, [attemptsRemaining])
 
     const tileClicked = async () => {
@@ -31,7 +53,6 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
                 setClicked(!clicked)
             }
         }
-        //handleShake();
     }
 
     return (
@@ -39,7 +60,7 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
             <motion.div
                 className="flex w-full h-full grid-item"
                 animate={controls}
-                initial={{ x: 0 }}
+                initial={{ x: 0, y: 0 }}
             >
                 {clicked ? (
                     <div className="flex items-center justify-center grid-item w-full h-full bg-neutral-500 p-1 rounded-md">

@@ -180,7 +180,7 @@ function Main() {
                         <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
                             {orderedGroopsArray.map((key, index) => (
                                 <div key={key}>
-                                    <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining}></Tile>
+                                    <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining} attempt={attempt}></Tile>
                                 </div>
                             ))}
                         </div>
