@@ -1,6 +1,7 @@
 import './App.css';
 import { useState, useEffect } from 'react';
 import Tile from './components/tile';
+import { GoDotFill } from "react-icons/go";
 
 function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
@@ -72,19 +73,19 @@ function Main() {
     function shuffleArray(originalArray) {
         // Create a copy of the original array to avoid modifying it directly
         const shuffledArray = [...originalArray];
-      
+
         // Fisher-Yates shuffle algorithm
         for (let i = shuffledArray.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
         }
-      
+
         return shuffledArray;
-      }
+    }
 
     const enter = async () => {
         console.log('enter clicked')
-        let groopsCounter = [0,0,0,0,0]
+        let groopsCounter = [0, 0, 0, 0, 0]
         let tileOne = groops[selectedTiles[0]];
         let tileTwo = groops[selectedTiles[1]];
         let tileThree = groops[selectedTiles[2]];
@@ -100,7 +101,7 @@ function Main() {
         } else if (groopsCounter.includes(4)) {
             correct();
         } else {
-            console.log('no')
+            wrong();
         }
         //console.log('correct')
         //console.log('one away')
@@ -114,6 +115,24 @@ function Main() {
         setSelectedTiles([]);
     }
 
+    const wrong = async () => {
+        //filter groops here (filter array and dictionary)
+        setSelectedTiles([]);
+        setAttemptsRemaining(attemptsRemaining - 1);
+    }
+
+    const DynamicIcons = ({ count, maxCount }) => {
+        const icons = Array.from({ length: maxCount }, (_, index) => (
+            <GoDotFill
+                key={index}
+                className={` ${index < count ? 'opacity-100' : 'opacity-0'}`}
+                style={{ fontSize: '24px' }}
+            />
+        ));
+
+        return <div className="flex">{icons}</div>;
+    };
+
 
     useEffect(() => {
         //TODO: if want random, use null, if not, use the value
@@ -123,29 +142,42 @@ function Main() {
     }, [])
 
     return (
-        <div className="App">
-            <div className='flex py-4'>
-                <p className="text-4xl font-bold text-center text-blue-600 py-4 bg-gray-100">
-                    Groops
-                </p>
+        <div className="App flex flex-col">
+            <div className="p-8 relative">
+                <div className="relative left-0 w-1/4 h-full flex items-center justify-center">
+                    <p className="text-4xl font-bold">
+                        Groops
+                    </p>
+                </div>
             </div>
-            <div className="grid grid-cols-4 gap-4" id="tile-container">
-                {orderedGroopsArray.map((key, index) => (
-                    <div key={key}>
-                        <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
-                    </div>
-                ))}
+            <div className="border-b border-gray-300"></div>
+            <div>
+                <div className='p-4'>
+                    <p>
+                        Create four groops of four!
+                    </p>
+                </div>
+                <div className="grid grid-cols-4 gap-4" id="tile-container">
+                    {orderedGroopsArray.map((key, index) => (
+                        <div key={key}>
+                            <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
+                        </div>
+                    ))}
+                </div>
             </div>
             <div className='flex items-center justify-center gap-4 pt-8'>
                 <p>
-                    mistakes remaining x x x x
+                    mistakes remaining
                 </p>
+                <div className='flex'>
+                    <DynamicIcons count={attemptsRemaining} maxCount={4} />
+                </div>
             </div>
             <div className='flex items-center justify-center gap-4 py-2'>
                 <button className='border-2 border-neutral-800 rounded-full p-2' onClick={shuffleGroops}>
                     shuffle
                 </button>
-                <button className='border-2 border-neutral-800 rounded-full p-2' onClick={()=>{setNewSetModalOpen(true)}}>
+                <button className='border-2 border-neutral-800 rounded-full p-2' onClick={() => { setNewSetModalOpen(true) }}>
                     new set
                 </button>
                 <div>
