@@ -17,6 +17,16 @@ function Main() {
     const [attempt, setAttempt] = useState(0);
     const [attemptsRemaining, setAttemptsRemaining] = useState(4);
     const [newSetModalOpen, setNewSetModalOpen] = useState(false);
+    const controls = useAnimation();
+    //TODO: each groop should have associated color... add dictionary for this
+
+    const handleShake = async () => {
+        // Animate the shaking effect
+        await controls.start({
+            x: [-5, 5, -5, 5, 0], // Move left, right, left, right, back to the center
+            transition: { duration: 0.5, ease: 'easeInOut' },
+        });
+    };
 
     const getGroops = async (groopIdInput) => {
         setLoading(true);
@@ -55,7 +65,6 @@ function Main() {
             newGroops = { ...newGroops, [currVal]: 4 };
             newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
         }
-        //TODO: shuffle
         let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
         setGroopOneName(groops_data['groop_one_name']['S'])
         setGroopTwoName(groops_data['groop_two_name']['S'])
@@ -124,6 +133,7 @@ function Main() {
     const wrong = async () => {
         //filter groops here (filter array and dictionary)
         setAttemptsRemaining(attemptsRemaining - 1);
+        handleShake();
     }
 
     const oneAway = async () => {
@@ -167,13 +177,13 @@ function Main() {
                     </p>
                 </div>
                 <div className='flex w-full sm:p-4 p-1 max-w-[120ch]'>
-                    <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
-                        {orderedGroopsArray.map((key, index) => (
-                            <div key={key}>
-                                <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
-                            </div>
-                        ))}
-                    </div>
+                        <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
+                            {orderedGroopsArray.map((key, index) => (
+                                <div key={key}>
+                                    <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining}></Tile>
+                                </div>
+                            ))}
+                        </div>
                 </div>
             </div>
             <div className='flex items-center justify-center gap-4 pt-8'>
