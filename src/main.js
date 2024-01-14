@@ -14,6 +14,7 @@ function Main() {
     const [selectedTiles, setSelectedTiles] = useState([]);
     const [attempt, setAttempt] = useState(0);
     const [attemptsRemaining, setAttemptsRemaining] = useState(4);
+    const [newSetModalOpen, setNewSetModalOpen] = useState(false);
 
     const getGroops = async (groopIdInput) => {
         setLoading(true);
@@ -97,7 +98,7 @@ function Main() {
         if (groopsCounter.includes(3)) {
             console.log('One away');
         } else if (groopsCounter.includes(4)) {
-            console.log('Got it');
+            correct();
         } else {
             console.log('no')
         }
@@ -108,6 +109,12 @@ function Main() {
         setSelectedTiles([]);
     }
 
+    const correct = async () => {
+        //filter groops here (filter array and dictionary)
+        setSelectedTiles([]);
+    }
+
+
     useEffect(() => {
         //TODO: if want random, use null, if not, use the value
         let groopIdInput = null;
@@ -117,31 +124,41 @@ function Main() {
 
     return (
         <div className="App">
-            <p>Groops</p>
-            <div>
-                {!loading ? (
-                <div className="grid grid-cols-4 gap-4" id="tile-container">
-                    {orderedGroopsArray.map((key, index) => (
-                        <div key={key}>
-                            <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
-                        </div>
-                    ))}
-                </div>
-                ) : (
-                    <div>
-                        loading
-                    </div>
-                )
-                }
+            <div className='flex py-4'>
+                <p className="text-4xl font-bold text-center text-blue-600 py-4 bg-gray-100">
+                    Groops
+                </p>
             </div>
-            <button onClick={shuffleGroops}>shuffle</button>
-            <button>new set</button>
-            <div>
-                {selectedTiles.length === 4 ? (
-                    <button onClick={enter}>enter</button>
-                ) : (
-                    <p>cant click enter</p>
-                )}
+            <div className="grid grid-cols-4 gap-4" id="tile-container">
+                {orderedGroopsArray.map((key, index) => (
+                    <div key={key}>
+                        <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attempt={attempt}></Tile>
+                    </div>
+                ))}
+            </div>
+            <div className='flex items-center justify-center gap-4 pt-8'>
+                <p>
+                    mistakes remaining x x x x
+                </p>
+            </div>
+            <div className='flex items-center justify-center gap-4 py-2'>
+                <button className='border-2 border-neutral-800 rounded-full p-2' onClick={shuffleGroops}>
+                    shuffle
+                </button>
+                <button className='border-2 border-neutral-800 rounded-full p-2' onClick={()=>{setNewSetModalOpen(true)}}>
+                    new set
+                </button>
+                <div>
+                    {selectedTiles.length === 4 ? (
+                        <button className='border-2 border-neutral-800 rounded-full p-2' onClick={enter}>
+                            submit
+                        </button>
+                    ) : (
+                        <div className='select-none pointer-events-none border-2 border-neutral-500 rounded-full p-2 text-neutral-500'>
+                            submit
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
