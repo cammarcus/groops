@@ -2,7 +2,8 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import Tile from './components/tile';
 import { GoDotFill } from "react-icons/go";
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import Modal from 'react-modal';
 
 function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
@@ -17,16 +18,9 @@ function Main() {
     const [attempt, setAttempt] = useState(0);
     const [attemptsRemaining, setAttemptsRemaining] = useState(4);
     const [newSetModalOpen, setNewSetModalOpen] = useState(false);
+    const [oneAwayModalOpen, setOneAwayModalOpen] = useState(false);
     const controls = useAnimation();
     //TODO: each groop should have associated color... add dictionary for this
-
-    const handleShake = async () => {
-        // Animate the shaking effect
-        await controls.start({
-            x: [-5, 5, -5, 5, 0], // Move left, right, left, right, back to the center
-            transition: { duration: 0.5, ease: 'easeInOut' },
-        });
-    };
 
     const getGroops = async (groopIdInput) => {
         setLoading(true);
@@ -120,6 +114,7 @@ function Main() {
         //groops
         //ordered groops array
         //figure out which 
+        //first we should reorder... wait for shuffle animation, then filter out
         let newGroopsDict = Object.fromEntries(
             Object.entries(groops).filter(([key]) => !selectedTiles.includes(key))
         );
@@ -133,12 +128,17 @@ function Main() {
     const wrong = async () => {
         //filter groops here (filter array and dictionary)
         setAttemptsRemaining(attemptsRemaining - 1);
-        handleShake();
     }
 
     const oneAway = async () => {
-        //filter groops here (filter array and dictionary)
+        setTimeout(() => {
+            setOneAwayModalOpen(true);
+          }, 1200);
         setAttemptsRemaining(attemptsRemaining - 1);
+        setTimeout(() => {
+            setOneAwayModalOpen(false);
+        }, 2500);
+
     }
 
     const DynamicIcons = ({ count, maxCount }) => {
@@ -160,8 +160,35 @@ function Main() {
 
     }, [])
 
+    const customStyles = {
+        overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0)', // Adjust the alpha (last value) for transparency
+          },
+        content: {
+          top: '25%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          marginRight: '-50%',
+          transform: 'translate(-50%, -50%)',
+          padding: 8,
+          backgroundColor: 'rgba(20, 20, 20, 0.9)',
+        },
+      };
+
+
     return (
         <div className="App flex flex-col">
+            <div className='flex w-1/2'>
+            <Modal
+                isOpen={oneAwayModalOpen}
+                contentLabel="One Away Modal"
+                appElement={document.getElementById('root') || undefined}
+                style={customStyles}
+            >
+                <p className='text-neutral-200'>One Away</p>
+            </Modal>
+            </div>
             <div className="p-8 relative">
                 <div className="relative left-0 w-1/4 h-full flex items-center justify-center">
                     <p className="text-4xl font-bold">
@@ -177,13 +204,15 @@ function Main() {
                     </p>
                 </div>
                 <div className='flex w-full sm:p-4 p-1 max-w-[120ch]'>
-                        <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
+                    <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
+                        <AnimatePresence>
                             {orderedGroopsArray.map((key, index) => (
                                 <div key={key}>
                                     <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining} attempt={attempt}></Tile>
                                 </div>
                             ))}
-                        </div>
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
             <div className='flex items-center justify-center gap-4 pt-8'>

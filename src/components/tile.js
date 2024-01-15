@@ -19,7 +19,7 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
         // Animate the shaking effect
         await controls.start({
             y: [-10, 0], // Move up once
-            transition: { duration: .5, ease: 'easeInOut' },
+            transition: { duration: 1, ease: 'easeInOut' },
         });
     };
 
@@ -27,7 +27,6 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
         //figure out which index it is of selected tiles
         let tileIndex = selectedTiles.indexOf(tilename);
         let delay = 150 * tileIndex;
-        console.log(delay)
         setTimeout(() => {
             if (clicked) {
                 handleBounce();
