@@ -19,6 +19,7 @@ function Main() {
     const [attemptsRemaining, setAttemptsRemaining] = useState(4);
     const [newSetModalOpen, setNewSetModalOpen] = useState(false);
     const [oneAwayModalOpen, setOneAwayModalOpen] = useState(false);
+    const [groopsSolved, setGroopsSolved] = useState([]);
     const controls = useAnimation();
     //TODO: each groop should have associated color... add dictionary for this
 
@@ -66,6 +67,7 @@ function Main() {
         setGroopFourName(groops_data['groop_four_name']['S'])
         setGroops(newGroops);
         setOrderedGroopsArray(shuffledOrderedGroopsArray);
+        setGroopsSolved([])
         setLoading(false);
     };
 
@@ -101,28 +103,57 @@ function Main() {
             //TODO: add one away graphic
             oneAway();
         } else if (groopsCounter.includes(4)) {
-            console.log('correct')
-            correct();
+            let correctGroop = groopsCounter.indexOf(4) + 1;
+            correct(correctGroop);
         } else {
             wrong();
         }
         setAttempt(attempt + 1);
     }
 
-    const correct = async () => {
+    const correct = async (correctGroop) => {
+        setAttempt(attempt + 1);
         //filter groops here (filter array and dictionary)
         //groops
         //ordered groops array
         //figure out which 
         //first we should reorder... wait for shuffle animation, then filter out
-        let newGroopsDict = Object.fromEntries(
-            Object.entries(groops).filter(([key]) => !selectedTiles.includes(key))
-        );
-        const newOrderedGroopsArray = orderedGroopsArray.filter(value => !selectedTiles.includes(value));
-        console.log(newGroopsDict);
-        setGroops(newGroopsDict);
-        setOrderedGroopsArray(newOrderedGroopsArray);
-        setSelectedTiles([]);
+        setTimeout(() => {
+            const newOrderedGroopsArray = [...orderedGroopsArray];
+            let k = 4
+            for (let i = 0; i < 4; i++) {
+                //if newOrderedGroopsArray[i] is NOT in selected tiles
+                let firstTileName = newOrderedGroopsArray[i];
+                if (!selectedTiles.includes(firstTileName)) {
+                    let j = k
+                    while (j < newOrderedGroopsArray.length) {
+                        k = k + 1;
+                        //if newOrderedGroopsArray[j] is in Selected tiles, flip i and j
+                        let secondTileName = newOrderedGroopsArray[j];
+                        if (selectedTiles.includes(secondTileName)) {
+                            newOrderedGroopsArray[i] = secondTileName;
+                            newOrderedGroopsArray[j] = firstTileName;
+                            break;
+                        }
+                        j = j + 1;
+                    }
+                }
+            }
+            //const newOrderedGroopsArray = orderedGroopsArray.filter(value => !selectedTiles.includes(value));
+            setOrderedGroopsArray(newOrderedGroopsArray);
+            setTimeout(async () => {
+                newOrderedGroopsArray.splice(0, 4);
+                let newOrderedGroopsArrayWithoutCorrect = newOrderedGroopsArray;
+                setOrderedGroopsArray(newOrderedGroopsArrayWithoutCorrect);
+                setGroopsSolved([...groopsSolved, correctGroop])
+                setSelectedTiles([]);
+            }, 1000);
+        }, 1200)
+    }
+
+    const correctReorder = async () => {
+        //filter groops here (filter array and dictionary)
+
     }
 
     const wrong = async () => {
@@ -133,7 +164,7 @@ function Main() {
     const oneAway = async () => {
         setTimeout(() => {
             setOneAwayModalOpen(true);
-          }, 1200);
+        }, 1200);
         setAttemptsRemaining(attemptsRemaining - 1);
         setTimeout(() => {
             setOneAwayModalOpen(false);
@@ -152,6 +183,26 @@ function Main() {
         return <div className="flex">{icons}</div>;
     };
 
+    const DynamicAnswers = () => {
+        const icons = Array.from({ length: groopsSolved.length }, (_, index) => (
+            index === 3 ? (
+            <div key={index} className='flex justify-center bg-blue-200 rounded-md w-full h-full min-h-24'>
+                <div className='flex justify-center items-center flex-col'>
+                    <p className='p-0 m-0'>GROOP NAME</p>
+                    <p className=''>ITEM 1, ITEM 2, ITEM 3, ITEM 4</p>
+                </div>
+            </div>) : (
+                <div key={index} className='flex justify-center bg-blue-200 rounded-md w-full h-full min-h-24 mb-2'>
+                <div className='flex justify-center items-center flex-col'>
+                    <p className='p-0 m-0'>GROOP NAM</p>
+                    <p className=''>ITEM 1, ITEM 2, ITEM 3, ITEM 4</p>
+                </div>
+            </div>
+            )
+        ));
+        return <div className="flex flex-col">{icons}</div>;
+    };
+
 
     useEffect(() => {
         //TODO: if want random, use null, if not, use the value
@@ -163,31 +214,31 @@ function Main() {
     const customStyles = {
         overlay: {
             backgroundColor: 'rgba(0, 0, 0, 0)', // Adjust the alpha (last value) for transparency
-          },
-        content: {
-          top: '25%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          padding: 8,
-          backgroundColor: 'rgba(20, 20, 20, 0.9)',
         },
-      };
+        content: {
+            top: '25%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            padding: 8,
+            backgroundColor: 'rgba(20, 20, 20, 0.9)',
+        },
+    };
 
 
     return (
         <div className="App flex flex-col">
             <div className='flex w-1/2'>
-            <Modal
-                isOpen={oneAwayModalOpen}
-                contentLabel="One Away Modal"
-                appElement={document.getElementById('root') || undefined}
-                style={customStyles}
-            >
-                <p className='text-neutral-200'>One Away</p>
-            </Modal>
+                <Modal
+                    isOpen={oneAwayModalOpen}
+                    contentLabel="One Away Modal"
+                    appElement={document.getElementById('root') || undefined}
+                    style={customStyles}
+                >
+                    <p className='text-neutral-200'>One Away</p>
+                </Modal>
             </div>
             <div className="p-8 relative">
                 <div className="relative left-0 w-1/4 h-full flex items-center justify-center">
@@ -203,15 +254,14 @@ function Main() {
                         Create four groops of four!
                     </p>
                 </div>
-                <div className='flex w-full sm:p-4 p-1 max-w-[120ch]'>
+                <div className='flex flex-col w-full sm:p-4 p-1 max-w-[120ch]'>
+                    <DynamicAnswers></DynamicAnswers>
                     <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
-                        <AnimatePresence>
-                            {orderedGroopsArray.map((key, index) => (
-                                <div key={key}>
-                                    <Tile tilename={key} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining} attempt={attempt}></Tile>
-                                </div>
-                            ))}
-                        </AnimatePresence>
+                        {orderedGroopsArray.map((key, index) => (
+                            <div key={key}>
+                                <Tile tilename={key} index={index} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining} attempt={attempt}></Tile>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

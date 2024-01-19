@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 
-function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRemaining, attempt }) {
+function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRemaining, attempt, index }) {
 
     const [clicked, setClicked] = useState(false);
     const controls = useAnimation();
