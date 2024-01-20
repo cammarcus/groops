@@ -9,10 +9,7 @@ function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
     const [groops, setGroops] = useState({});
     const [orderedGroopsArray, setOrderedGroopsArray] = useState([]);
-    const [groopOneName, setGroopOneName] = useState('');
-    const [groopTwoName, setGroopTwoName] = useState('');
-    const [groopThreeName, setGroopThreeName] = useState('');
-    const [groopFourName, setGroopFourName] = useState('');
+    const [groopNames, setGroopNames] = useState({})
     const [loading, setLoading] = useState(true);
     const [selectedTiles, setSelectedTiles] = useState([]);
     const [attempt, setAttempt] = useState(0);
@@ -20,10 +17,13 @@ function Main() {
     const [newSetModalOpen, setNewSetModalOpen] = useState(false);
     const [oneAwayModalOpen, setOneAwayModalOpen] = useState(false);
     const [groopsSolved, setGroopsSolved] = useState([]);
+    const [groopsAnswers, setGroopsAnswers] = useState({});
     const controls = useAnimation();
+    const groopColors = {1: '#bb5588', 2: '#D999B9', 3: '#90E0F3', 4: '#D17B88'};
     //TODO: each groop should have associated color... add dictionary for this
 
     const getGroops = async (groopIdInput) => {
+        setSelectedTiles([]);
         setLoading(true);
         let getUrl = apiUrl
         if (groopIdInput) {
@@ -38,6 +38,7 @@ function Main() {
         let groop_two_values_array = groops_data['groop_two_values']['SS']
         let groop_three_values_array = groops_data['groop_three_values']['SS']
         let groop_four_values_array = groops_data['groop_four_values']['SS']
+        setGroopsAnswers({1: groop_one_values_array, 2: groop_two_values_array, 3: groop_three_values_array, 4: groop_four_values_array});
         let newGroops = {};
         let newOrderedGroopsArray = []
         for (let i = 0; i < groop_one_values_array.length; i++) {
@@ -61,10 +62,7 @@ function Main() {
             newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
         }
         let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
-        setGroopOneName(groops_data['groop_one_name']['S'])
-        setGroopTwoName(groops_data['groop_two_name']['S'])
-        setGroopThreeName(groops_data['groop_three_name']['S'])
-        setGroopFourName(groops_data['groop_four_name']['S'])
+        setGroopNames({1: groops_data['groop_one_name']['S'], 2: groops_data['groop_two_name']['S'], 3: groops_data['groop_three_name']['S'], 4: groops_data['groop_four_name']['S']})
         setGroops(newGroops);
         setOrderedGroopsArray(shuffledOrderedGroopsArray);
         setGroopsSolved([])
@@ -103,21 +101,19 @@ function Main() {
             //TODO: add one away graphic
             oneAway();
         } else if (groopsCounter.includes(4)) {
-            let correctGroop = groopsCounter.indexOf(4) + 1;
+            let correctGroop = groopsCounter.indexOf(4);
             correct(correctGroop);
         } else {
             wrong();
+            if (!attemptsRemaining) {
+                solveRemaining();
+            }
         }
         setAttempt(attempt + 1);
     }
 
     const correct = async (correctGroop) => {
         setAttempt(attempt + 1);
-        //filter groops here (filter array and dictionary)
-        //groops
-        //ordered groops array
-        //figure out which 
-        //first we should reorder... wait for shuffle animation, then filter out
         setTimeout(() => {
             const newOrderedGroopsArray = [...orderedGroopsArray];
             let k = 4
@@ -151,6 +147,18 @@ function Main() {
         }, 1200)
     }
 
+    const solveRemaining = async () => {
+        console.log('you lost');
+    }
+
+    useEffect(() => {
+        //TODO: if want random, use null, if not, use the value
+        if (groopsSolved.length === 4) {
+            console.log('game is done... have modal appear');
+        }
+    }, [groopsSolved])
+
+
     const correctReorder = async () => {
         //filter groops here (filter array and dictionary)
 
@@ -164,11 +172,11 @@ function Main() {
     const oneAway = async () => {
         setTimeout(() => {
             setOneAwayModalOpen(true);
-        }, 1200);
+        }, 1600);
         setAttemptsRemaining(attemptsRemaining - 1);
         setTimeout(() => {
             setOneAwayModalOpen(false);
-        }, 2500);
+        }, 3000);
 
     }
 
@@ -183,25 +191,38 @@ function Main() {
         return <div className="flex">{icons}</div>;
     };
 
-    const DynamicAnswers = () => {
+    const DynamicAnswerBanners = () => {
         const icons = Array.from({ length: groopsSolved.length }, (_, index) => (
             index === 3 ? (
-            <div key={index} className='flex justify-center bg-blue-200 rounded-md w-full h-full min-h-24'>
+            <div 
+            key={index} 
+            className='flex justify-center bg-blue-200 rounded-md w-full h-full min-h-24'
+            style={{backgroundColor: groopColors[groopsSolved[index]]}}
+            >
                 <div className='flex justify-center items-center flex-col'>
-                    <p className='p-0 m-0'>GROOP NAME</p>
-                    <p className=''>ITEM 1, ITEM 2, ITEM 3, ITEM 4</p>
+                    <p className='p-0 m-0 uppercase'>{groopNames[groopsSolved[index]]}</p>
+                    <p className='uppercase'>{answersArrayToString(groopsAnswers[groopsSolved[index]])}</p>
                 </div>
             </div>) : (
-                <div key={index} className='flex justify-center bg-blue-200 rounded-md w-full h-full min-h-24 mb-2'>
+                <div 
+                key={index} 
+                className='flex justify-center rounded-md w-full h-full min-h-24 mb-2'
+                style={{backgroundColor: groopColors[groopsSolved[index]]}}
+                >
                 <div className='flex justify-center items-center flex-col'>
-                    <p className='p-0 m-0'>GROOP NAM</p>
-                    <p className=''>ITEM 1, ITEM 2, ITEM 3, ITEM 4</p>
+                    <p className='p-0 m-0 uppercase'>{groopNames[groopsSolved[index]]}</p>
+                    <p className='uppercase'>{answersArrayToString(groopsAnswers[groopsSolved[index]])}</p>
                 </div>
             </div>
             )
         ));
         return <div className="flex flex-col">{icons}</div>;
     };
+
+    const answersArrayToString = (answersArray) => {
+        let answersString = answersArray[0] + ', ' + answersArray[1] + ', ' + answersArray[2] + ', ' +  answersArray[3]
+        return answersString;
+    }
 
 
     useEffect(() => {
@@ -213,7 +234,7 @@ function Main() {
 
     const customStyles = {
         overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0)', // Adjust the alpha (last value) for transparency
+            backgroundColor: 'rgba(0, 0, 0, 0)',
         },
         content: {
             top: '25%',
@@ -255,7 +276,7 @@ function Main() {
                     </p>
                 </div>
                 <div className='flex flex-col w-full sm:p-4 p-1 max-w-[120ch]'>
-                    <DynamicAnswers></DynamicAnswers>
+                    <DynamicAnswerBanners></DynamicAnswerBanners>
                     <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
                         {orderedGroopsArray.map((key, index) => (
                             <div key={key}>
