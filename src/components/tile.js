@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 
-function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRemaining, attempt, index }) {
+function Tile({ tilename, groopNum, isGameOver, selectedTiles, setSelectedTiles, attemptsRemaining, attempt, index }) {
 
     const [clicked, setClicked] = useState(false);
     const controls = useAnimation();
@@ -22,6 +22,15 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
             transition: { duration: 1, ease: 'easeInOut' },
         });
     };
+    
+    const handleFloat = async () => {
+        // Animate the shaking effect
+        await controls.start({
+            y: [-20], // Move up once
+            x: [-20],
+            transition: { duration: 1, ease: 'easeInOut' },
+        });
+    };
 
     useEffect(() => {
         //figure out which index it is of selected tiles
@@ -36,11 +45,22 @@ function Tile({ tilename, groupNum, selectedTiles, setSelectedTiles, attemptsRem
 
     useEffect(() => {
         //setClicked(false);
-        setTimeout(() => {
-            if (clicked) {
-                handleShake();
+        const handleAttemptsRemainingChange = async () => {
+            setTimeout(() => {
+                if (clicked) {
+                    handleShake();
+                    handleBounce();
+                }
+              }, 1000);
+            if (attemptsRemaining === 0) {
+                setTimeout(() => {
+                    if (clicked) {
+                        setClicked(false);
+                    }
+                  }, 1500);
             }
-          }, 1000);
+        }
+        handleAttemptsRemainingChange();
     }, [attemptsRemaining])
 
     const tileClicked = async () => {
