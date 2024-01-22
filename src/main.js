@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Tile from './components/tile';
 import { GoDotFill } from "react-icons/go";
 import { MdOutlineCancel } from "react-icons/md";
+import { FaSquare } from "react-icons/fa";
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import Modal from 'react-modal';
 
@@ -73,6 +74,8 @@ function Main() {
         setOrderedGroopsArray(shuffledOrderedGroopsArray);
         setGroopsSolved([]);
         setLoading(false);
+        setAttemptsRemaining(4);
+        setAttemptsRemainingDelayed(4);
     };
 
     const shuffleGroops = () => {
@@ -93,7 +96,6 @@ function Main() {
     }
 
     const enter = async () => {
-        console.log('enter clicked');
         setEnterLoading(true);
         let groopsCounter = [0, 0, 0, 0, 0]
         let tileOne = groops[selectedTiles[0]];
@@ -282,14 +284,31 @@ function Main() {
         ));
         return <div className="flex flex-col">{answerBanners}</div>;
     };
+    /*
+    resultsSavedArray[index][1]
+    resultsSavedArray[index][2]
+    resultsSavedArray[index][3]
+    resultsSavedArray[index][4] */
 
     const DynamicResultsImage = () => {
-        const icons = Array.from({ length: resultsSavedArray.length }, (_, index) => (
-            <div key={index} className="flex flex-col w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
-                {resultsSavedArray[index][0]}
+        const results = Array.from({ length: resultsSavedArray.length }, (_, index) => (
+            <div key={index} className="flex flex-row justify-center w-full p-0" id="tile-container">
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][1]} colorOfSquare = {groopColors[1]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][2]} colorOfSquare = {groopColors[2]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][3]} colorOfSquare = {groopColors[3]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][4]} colorOfSquare = {groopColors[4]}></DynamicSquaresForResultsImage>
             </div>
         ));
-        return <div>{icons}</div>;
+        return <div className='flex flex-col'>{results}</div>;
+    };
+
+    const DynamicSquaresForResultsImage = ({numberOfSquares, colorOfSquare}) => {
+        const results = Array.from({ length: numberOfSquares }, (_, index) => (
+            <div key={index}>
+                <FaSquare style={{color: colorOfSquare}}></FaSquare>
+            </div>
+        ));
+        return <div className='flex flex-row'>{results}</div>;
     };
 
     const answersArrayToString = (answersArray) => {
@@ -301,7 +320,6 @@ function Main() {
         //TODO: if want random, use null, if not, use the value
         let groopIdInput = null;
         getGroops(groopIdInput);
-
     }, [])
 
     const oneAwayModalStyle = {
@@ -325,6 +343,8 @@ function Main() {
             backgroundColor: 'rgba(0, 0, 0, .05)',
         },
         content: {
+            width: '33%',
+            height: '50%',
             top: '40%',
             left: '50%',
             right: 'auto',
@@ -355,7 +375,7 @@ function Main() {
                     appElement={document.getElementById('root') || undefined}
                     style={gameOverModalStyle}
                 >
-                    <div className='flex flex-col'>
+                    <div className='flex flex-col justify-center'>
                         <div className='flex justify-end'>
                             <button onClick={() => setGameOverModalOpen(false)}>
                                 <div>
@@ -364,16 +384,16 @@ function Main() {
                             </button>
                         </div>
                         {userWon ? (
-                            <div>
+                            <div className='flex justify-center'>
                                 <p className='text-neutral-700'>Great!</p>
                             </div>
                         ) : (
-                            <div>
+                            <div className='flex justify-center'>
                                 <p className='text-neutral-700'>Next Time!</p>
                             </div>
                         )}
                     </div>
-                    <div>
+                    <div className='flex flex-col'>
                         <DynamicResultsImage></DynamicResultsImage>
                     </div>
                 </Modal>
