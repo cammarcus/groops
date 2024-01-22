@@ -293,19 +293,19 @@ function Main() {
     const DynamicResultsImage = () => {
         const results = Array.from({ length: resultsSavedArray.length }, (_, index) => (
             <div key={index} className="flex flex-row justify-center w-full p-0" id="tile-container">
-                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][1]} colorOfSquare = {groopColors[1]}></DynamicSquaresForResultsImage>
-                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][2]} colorOfSquare = {groopColors[2]}></DynamicSquaresForResultsImage>
-                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][3]} colorOfSquare = {groopColors[3]}></DynamicSquaresForResultsImage>
-                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][4]} colorOfSquare = {groopColors[4]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][1]} colorOfSquare={groopColors[1]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][2]} colorOfSquare={groopColors[2]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][3]} colorOfSquare={groopColors[3]}></DynamicSquaresForResultsImage>
+                <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][4]} colorOfSquare={groopColors[4]}></DynamicSquaresForResultsImage>
             </div>
         ));
         return <div className='flex flex-col'>{results}</div>;
     };
 
-    const DynamicSquaresForResultsImage = ({numberOfSquares, colorOfSquare}) => {
+    const DynamicSquaresForResultsImage = ({ numberOfSquares, colorOfSquare }) => {
         const results = Array.from({ length: numberOfSquares }, (_, index) => (
             <div key={index}>
-                <FaSquare style={{color: colorOfSquare}}></FaSquare>
+                <FaSquare style={{ color: colorOfSquare }}></FaSquare>
             </div>
         ));
         return <div className='flex flex-row'>{results}</div>;
@@ -398,13 +398,14 @@ function Main() {
                     </div>
                 </Modal>
             </div>
-            <div className="p-8 relative">
-                <div className="relative left-0 w-1/4 h-full flex items-center justify-center">
+            <div className="sm:p-8 p-4 relative">
+                <div className="relative w-full sm:w-1/4 h-full flex items-center justify-center sm:justify-start">
                     <p className="text-4xl font-bold">
                         Groops
                     </p>
                 </div>
             </div>
+
             <div className="border-b border-gray-300"></div>
             <div className='flex justify-center items-center flex-col'>
                 <div className='p-4'>
@@ -425,13 +426,13 @@ function Main() {
             </div>
             {isGameOver ? (
                 <div className='flex items-center justify-center gap-4 py-4'>
-                    <button className='border-2 border-neutral-800 rounded-full p-3' onClick={()=> setGameOverModalOpen(true)}>
+                    <button className='border-2 border-neutral-800 rounded-full p-3' onClick={() => setGameOverModalOpen(true)}>
                         view results
                     </button>
                 </div>
             ) : (
                 <div>
-                    <div className='flex items-center justify-center gap-4 pt-8'>
+                    <div className='flex items-center justify-center gap-4 sm:pt-8 pt-4'>
                         <p>
                             mistakes remaining
                         </p>
