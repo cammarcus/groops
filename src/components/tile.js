@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 
-function Tile({ tilename, groopNum, isGameOver, selectedTiles, setSelectedTiles, attemptsRemaining, attempt, index }) {
+function Tile({ tilename, groopNum, isGameOver, selectedTiles, setSelectedTiles, attemptsRemaining, attempt, index, deselectAll }) {
 
     const [clicked, setClicked] = useState(false);
     const controls = useAnimation();
@@ -62,6 +62,10 @@ function Tile({ tilename, groopNum, isGameOver, selectedTiles, setSelectedTiles,
         }
         handleAttemptsRemainingChange();
     }, [attemptsRemaining])
+
+    useEffect(() => {
+        setClicked(false);
+    }, [deselectAll])
 
     const tileClicked = async () => {
         if (clicked) {

@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Tile from './components/tile';
 import { GoDotFill } from "react-icons/go";
 import { MdOutlineCancel } from "react-icons/md";
@@ -28,6 +28,9 @@ function Main() {
     const [userWon, setUserWon] = useState(false);
     const [enterLoading, setEnterLoading] = useState(false);
     const groopColors = { 1: '#bb5588', 2: '#D999B9', 3: '#90E0F3', 4: '#D17B88' };
+    const previousGuesses = useRef([]);
+    const [deselectAll, setDeselectAll] = useState(0);
+    const [alreadyGuessedModalOpen, setAlreadyGuessedModalOpen] = useState(false);
 
     const getGroops = async (groopIdInput) => {
         setSelectedTiles([]);
@@ -76,11 +79,18 @@ function Main() {
         setLoading(false);
         setAttemptsRemaining(4);
         setAttemptsRemainingDelayed(4);
+        previousGuesses.current = [];
+        setResultsSavedArray([]);
     };
 
     const shuffleGroops = () => {
         let shuffledOrderedGroopsArray = shuffleArray(orderedGroopsArray);
         setOrderedGroopsArray(shuffledOrderedGroopsArray);
+    }
+
+    const deselectAllFunction = () => {
+        setDeselectAll(deselectAll + 1);
+        setSelectedTiles([]);
     }
 
     function shuffleArray(originalArray) {
@@ -95,31 +105,58 @@ function Main() {
         return shuffledArray;
     }
 
-    const enter = async () => {
-        setEnterLoading(true);
-        let groopsCounter = [0, 0, 0, 0, 0]
-        let tileOne = groops[selectedTiles[0]];
-        let tileTwo = groops[selectedTiles[1]];
-        let tileThree = groops[selectedTiles[2]];
-        let tileFour = groops[selectedTiles[3]];
-        groopsCounter[tileOne] += 1
-        groopsCounter[tileTwo] += 1
-        groopsCounter[tileThree] += 1
-        groopsCounter[tileFour] += 1
-        setResultsSavedArray(resultsSavedArray => [...resultsSavedArray, groopsCounter]);
-        if (groopsCounter.includes(3)) {
-            //TODO: add one away graphic
-            await oneAway();
-        } else if (groopsCounter.includes(4)) {
-            let correctGroop = groopsCounter.indexOf(4);
-            await correct(correctGroop);
-        } else {
-            await wrong();
+    const getAlreadyGuessed = async () => {
+        // TODO: make sure selected tiles and previousGuesses don't cause issues
+        for (let i = 0; i < previousGuesses.current.length; i++) {
+            let onePreviousGuess = previousGuesses.current[i]
+            let count_of_same_guesses = 0;
+            for (let j = 0; j < 4; j++) {
+                for (let k = 0; k < 4; k++) {
+                    if (onePreviousGuess[j] == selectedTiles[k]) {
+                        count_of_same_guesses += 1;
+                    }
+                }
+            }
+            if (count_of_same_guesses === 4) {
+                return true;
+            }
         }
-        setAttempt(attempt + 1);
-        setTimeout(() => {
-            setEnterLoading(false);
-        }, 1000);
+        return false;
+    }
+
+    const enter = async () => {
+        let alreadyGuessed = await getAlreadyGuessed();
+        if (alreadyGuessed) {
+            setAlreadyGuessedModalOpen(true);
+            setTimeout(() => {
+                setAlreadyGuessedModalOpen(false);
+            }, 1400);
+        } else {
+            setEnterLoading(true);
+            let groopsCounter = [0, 0, 0, 0, 0]
+            let tileOne = groops[selectedTiles[0]];
+            let tileTwo = groops[selectedTiles[1]];
+            let tileThree = groops[selectedTiles[2]];
+            let tileFour = groops[selectedTiles[3]];
+            groopsCounter[tileOne] += 1
+            groopsCounter[tileTwo] += 1
+            groopsCounter[tileThree] += 1
+            groopsCounter[tileFour] += 1
+            setResultsSavedArray(resultsSavedArray => [...resultsSavedArray, groopsCounter]);
+            previousGuesses.current = [...previousGuesses.current, selectedTiles]
+            if (groopsCounter.includes(3)) {
+                await oneAway();
+            } else if (groopsCounter.includes(4)) {
+                let correctGroop = groopsCounter.indexOf(4);
+                await correct(correctGroop);
+            } else {
+                await wrong();
+            }
+            setAttempt(attempt + 1);
+            setTimeout(() => {
+                setEnterLoading(false);
+            }, 1000);
+        }
     }
 
     const correct = async (correctGroop) => {
@@ -284,11 +321,6 @@ function Main() {
         ));
         return <div className="flex flex-col">{answerBanners}</div>;
     };
-    /*
-    resultsSavedArray[index][1]
-    resultsSavedArray[index][2]
-    resultsSavedArray[index][3]
-    resultsSavedArray[index][4] */
 
     const DynamicResultsImage = () => {
         const results = Array.from({ length: resultsSavedArray.length }, (_, index) => (
@@ -370,6 +402,16 @@ function Main() {
             </div>
             <div className='flex w-1/2'>
                 <Modal
+                    isOpen={alreadyGuessedModalOpen}
+                    contentLabel="Already Guessed Modal"
+                    appElement={document.getElementById('root') || undefined}
+                    style={oneAwayModalStyle}
+                >
+                    <p className='text-neutral-200'>Already Guessed</p>
+                </Modal>
+            </div>
+            <div className='flex w-1/2'>
+                <Modal
                     isOpen={gameOverModalOpen}
                     contentLabel="Game Over Modal"
                     appElement={document.getElementById('root') || undefined}
@@ -418,7 +460,7 @@ function Main() {
                     <div className="flex w-full grid grid-cols-4 sm:gap-2 gap-1" id="tile-container">
                         {orderedGroopsArray.map((key, index) => (
                             <div key={key}>
-                                <Tile tilename={key} isGameOver={isGameOver} index={index} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining} attempt={attempt}></Tile>
+                                <Tile tilename={key} isGameOver={isGameOver} index={index} groopNum={groops[key]} selectedTiles={selectedTiles} setSelectedTiles={setSelectedTiles} attemptsRemaining={attemptsRemaining} attempt={attempt} deselectAll={deselectAll}></Tile>
                             </div>
                         ))}
                     </div>
@@ -427,14 +469,14 @@ function Main() {
             {isGameOver ? (
                 <div className='flex items-center justify-center gap-4 py-4'>
                     <button className='border-2 border-neutral-800 rounded-full p-3' onClick={() => setGameOverModalOpen(true)}>
-                        view results
+                        View results
                     </button>
                 </div>
             ) : (
                 <div>
                     <div className='flex items-center justify-center gap-4 sm:pt-8 pt-4'>
                         <p>
-                            mistakes remaining
+                            Mistakes remaining
                         </p>
                         <div className='flex'>
                             <DynamicIcons count={attemptsRemainingDelayed} maxCount={4} />
@@ -442,19 +484,19 @@ function Main() {
                     </div>
                     <div className='flex items-center justify-center gap-4 py-4'>
                         <button className='border-2 border-neutral-800 rounded-full p-3' onClick={shuffleGroops}>
-                            shuffle
+                            Shuffle
                         </button>
-                        <button className='border-2 border-neutral-800 rounded-full p-3' onClick={() => { setNewSetModalOpen(true) }}>
-                            new set
+                        <button className='border-2 border-neutral-800 rounded-full p-3' onClick={deselectAllFunction}>
+                            Deselect All
                         </button>
                         <div>
                             {selectedTiles.length === 4 && attemptsRemaining > 0 && !enterLoading ? (
                                 <button className='border-2 border-neutral-800 rounded-full p-3' onClick={enter}>
-                                    submit
+                                    Submit
                                 </button>
                             ) : (
                                 <div className='select-none pointer-events-none border-2 border-neutral-500 rounded-full p-3 text-neutral-500'>
-                                    submit
+                                    Submit
                                 </div>
                             )}
                         </div>
