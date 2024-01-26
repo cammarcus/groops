@@ -5,7 +5,7 @@ import { GoDotFill } from "react-icons/go";
 import { MdOutlineCancel } from "react-icons/md";
 import { FaSquare } from "react-icons/fa";
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
-import Modal from 'react-modal';
+import ReactModal from './components/reactModal';
 
 function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
@@ -31,6 +31,21 @@ function Main() {
     const previousGuesses = useRef([]);
     const [deselectAll, setDeselectAll] = useState(0);
     const [alreadyGuessedModalOpen, setAlreadyGuessedModalOpen] = useState(false);
+    const [screenSize, setScreenSize] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+          setScreenSize(window.innerWidth);
+        };
+    
+        // Set up an event listener for window resize
+        window.addEventListener('resize', handleResize);
+    
+        // Clean up the event listener when the component unmounts
+        return () => {
+          window.removeEventListener('resize', handleResize);
+        };
+      }, []); // Empty dependency array means this effect runs once after initial render
 
     const getGroops = async (groopIdInput) => {
         setSelectedTiles([]);
@@ -80,7 +95,7 @@ function Main() {
         setAttemptsRemaining(4);
         setAttemptsRemainingDelayed(4);
         previousGuesses.current = [];
-        setResultsSavedArray([]);
+        //setResultsSavedArray([]);
     };
 
     const shuffleGroops = () => {
@@ -106,7 +121,6 @@ function Main() {
     }
 
     const getAlreadyGuessed = async () => {
-        // TODO: make sure selected tiles and previousGuesses don't cause issues
         for (let i = 0; i < previousGuesses.current.length; i++) {
             let onePreviousGuess = previousGuesses.current[i]
             let count_of_same_guesses = 0;
@@ -331,13 +345,15 @@ function Main() {
                 <DynamicSquaresForResultsImage numberOfSquares={resultsSavedArray[index][4]} colorOfSquare={groopColors[4]}></DynamicSquaresForResultsImage>
             </div>
         ));
-        return <div className='flex flex-col'>{results}</div>;
+        return <div className='flex flex-col mt-4'>{results}</div>;
     };
 
     const DynamicSquaresForResultsImage = ({ numberOfSquares, colorOfSquare }) => {
         const results = Array.from({ length: numberOfSquares }, (_, index) => (
             <div key={index}>
-                <FaSquare style={{ color: colorOfSquare }}></FaSquare>
+                <FaSquare 
+                style={{ color: colorOfSquare,
+                    fontSize: window.innerWidth > 1000 ? '40px' : window.innerWidth > 600 ? '38px' : '32px',}}></FaSquare>
             </div>
         ));
         return <div className='flex flex-row'>{results}</div>;
@@ -375,8 +391,8 @@ function Main() {
             backgroundColor: 'rgba(0, 0, 0, .05)',
         },
         content: {
-            width: '33%',
-            height: '50%',
+            width: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '55%' : '70%',
+            height: '65%',
             top: '40%',
             left: '50%',
             right: 'auto',
@@ -390,55 +406,44 @@ function Main() {
 
     return (
         <div className="App flex flex-col">
-            <div className='flex w-1/2'>
-                <Modal
-                    isOpen={oneAwayModalOpen}
-                    contentLabel="One Away Modal"
-                    appElement={document.getElementById('root') || undefined}
-                    style={oneAwayModalStyle}
-                >
-                    <p className='text-neutral-200'>One Away</p>
-                </Modal>
+            <div className="flex">
+                    <ReactModal
+                        modalOpenState={oneAwayModalOpen} contentLabelInput={"One AWay Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={oneAwayModalStyle}
+                    >
+                        <p className='text-neutral-200'>One Away</p>
+                    </ReactModal>
             </div>
-            <div className='flex w-1/2'>
-                <Modal
-                    isOpen={alreadyGuessedModalOpen}
-                    contentLabel="Already Guessed Modal"
-                    appElement={document.getElementById('root') || undefined}
-                    style={oneAwayModalStyle}
+            <div className='flex'>
+                <ReactModal
+                    modalOpenState={alreadyGuessedModalOpen} contentLabelInput={"Already Guessed Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={oneAwayModalStyle}
                 >
                     <p className='text-neutral-200'>Already Guessed</p>
-                </Modal>
+                </ReactModal>
             </div>
-            <div className='flex w-1/2'>
-                <Modal
-                    isOpen={gameOverModalOpen}
-                    contentLabel="Game Over Modal"
-                    appElement={document.getElementById('root') || undefined}
-                    style={gameOverModalStyle}
-                >
+            <div className='flex'>
+                <ReactModal modalOpenState={gameOverModalOpen} contentLabelInput={"Game Over Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={gameOverModalStyle}>
                     <div className='flex flex-col justify-center'>
                         <div className='flex justify-end'>
                             <button onClick={() => setGameOverModalOpen(false)}>
                                 <div>
-                                    <MdOutlineCancel></MdOutlineCancel>
+                                    <MdOutlineCancel style={{fontSize: '20px'}}></MdOutlineCancel>
                                 </div>
                             </button>
                         </div>
                         {userWon ? (
                             <div className='flex justify-center'>
-                                <p className='text-neutral-700'>Great!</p>
+                                <p className='text-neutral-700' style={{fontSize: '28px'}}>Great!</p>
                             </div>
                         ) : (
                             <div className='flex justify-center'>
-                                <p className='text-neutral-700'>Next Time!</p>
+                                <p className='text-neutral-700' style={{fontSize: '28px'}}>Next Time!</p>
                             </div>
                         )}
                     </div>
                     <div className='flex flex-col'>
                         <DynamicResultsImage></DynamicResultsImage>
                     </div>
-                </Modal>
+                </ReactModal>
             </div>
             <div className="sm:p-8 p-4 relative">
                 <div className="relative w-full sm:w-1/4 h-full flex items-center justify-center sm:justify-start">
