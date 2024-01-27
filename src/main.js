@@ -6,6 +6,7 @@ import { MdOutlineCancel } from "react-icons/md";
 import { FaSquare } from "react-icons/fa";
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import ReactModal from './components/reactModal';
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Main() {
     const apiUrl = 'https://ts2pxvn89b.execute-api.us-east-1.amazonaws.com/items';
@@ -23,7 +24,6 @@ function Main() {
     const [oneAwayModalOpen, setOneAwayModalOpen] = useState(false);
     const [groopsSolved, setGroopsSolved] = useState([]);
     const [groopsAnswers, setGroopsAnswers] = useState({});
-    const controls = useAnimation();
     const [resultsSavedArray, setResultsSavedArray] = useState([]);
     const [userWon, setUserWon] = useState(false);
     const [enterLoading, setEnterLoading] = useState(false);
@@ -32,6 +32,10 @@ function Main() {
     const [deselectAll, setDeselectAll] = useState(0);
     const [alreadyGuessedModalOpen, setAlreadyGuessedModalOpen] = useState(false);
     const [screenSize, setScreenSize] = useState(window.innerWidth);
+    const controls = useAnimation();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { hash, pathname, search } = location;
 
     useEffect(() => {
         const handleResize = () => {
@@ -57,6 +61,7 @@ function Main() {
         const response = await fetch(getUrl, {
             method: 'GET'
         })
+        //TODO: if we get something bad here, reroute to id not found page
         const data = await response.json();
         let groops_data = data['Items'][0];
         let groop_one_values_array = groops_data['groop_one_values']['SS']
@@ -97,6 +102,16 @@ function Main() {
         previousGuesses.current = [];
         //setResultsSavedArray([]);
     };
+
+    const rerouteToRandomID = async (getUrl) => {
+        let rerouteId = '/error';
+        const response = await fetch(getUrl, {
+            method: 'GET'
+        })
+        const data = await response.json();
+        rerouteId = data.toString();
+        navigate(rerouteId);
+      }
 
     const shuffleGroops = () => {
         let shuffledOrderedGroopsArray = shuffleArray(orderedGroopsArray);
@@ -367,6 +382,7 @@ function Main() {
     useEffect(() => {
         //TODO: if want random, use null, if not, use the value
         let groopIdInput = null;
+        groopIdInput = pathname.substring(1);
         getGroops(groopIdInput);
     }, [])
 
