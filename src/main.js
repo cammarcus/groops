@@ -39,17 +39,17 @@ function Main() {
 
     useEffect(() => {
         const handleResize = () => {
-          setScreenSize(window.innerWidth);
+            setScreenSize(window.innerWidth);
         };
-    
+
         // Set up an event listener for window resize
         window.addEventListener('resize', handleResize);
-    
+
         // Clean up the event listener when the component unmounts
         return () => {
-          window.removeEventListener('resize', handleResize);
+            window.removeEventListener('resize', handleResize);
         };
-      }, []); // Empty dependency array means this effect runs once after initial render
+    }, []); // Empty dependency array means this effect runs once after initial render
 
     const getGroops = async (groopIdInput) => {
         setSelectedTiles([]);
@@ -111,7 +111,7 @@ function Main() {
         const data = await response.json();
         rerouteId = data.toString();
         navigate(rerouteId);
-      }
+    }
 
     const shuffleGroops = () => {
         let shuffledOrderedGroopsArray = shuffleArray(orderedGroopsArray);
@@ -186,6 +186,10 @@ function Main() {
                 setEnterLoading(false);
             }, 1000);
         }
+    }
+
+    const returnToHome = () => {
+        navigate('/');
     }
 
     const correct = async (correctGroop) => {
@@ -366,9 +370,11 @@ function Main() {
     const DynamicSquaresForResultsImage = ({ numberOfSquares, colorOfSquare }) => {
         const results = Array.from({ length: numberOfSquares }, (_, index) => (
             <div key={index}>
-                <FaSquare 
-                style={{ color: colorOfSquare,
-                    fontSize: window.innerWidth > 1000 ? '40px' : window.innerWidth > 600 ? '38px' : '32px',}}></FaSquare>
+                <FaSquare
+                    style={{
+                        color: colorOfSquare,
+                        fontSize: window.innerWidth > 1000 ? '40px' : window.innerWidth > 600 ? '38px' : '32px',
+                    }}></FaSquare>
             </div>
         ));
         return <div className='flex flex-row'>{results}</div>;
@@ -423,11 +429,11 @@ function Main() {
     return (
         <div className="App flex flex-col">
             <div className="flex">
-                    <ReactModal
-                        modalOpenState={oneAwayModalOpen} contentLabelInput={"One AWay Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={oneAwayModalStyle}
-                    >
-                        <p className='text-neutral-200'>One Away</p>
-                    </ReactModal>
+                <ReactModal
+                    modalOpenState={oneAwayModalOpen} contentLabelInput={"One Away Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={oneAwayModalStyle}
+                >
+                    <p className='text-neutral-200'>One Away</p>
+                </ReactModal>
             </div>
             <div className='flex'>
                 <ReactModal
@@ -442,17 +448,17 @@ function Main() {
                         <div className='flex justify-end'>
                             <button onClick={() => setGameOverModalOpen(false)}>
                                 <div>
-                                    <MdOutlineCancel style={{fontSize: '20px'}}></MdOutlineCancel>
+                                    <MdOutlineCancel style={{ fontSize: '20px' }}></MdOutlineCancel>
                                 </div>
                             </button>
                         </div>
                         {userWon ? (
                             <div className='flex justify-center'>
-                                <p className='text-neutral-700' style={{fontSize: '28px'}}>Great!</p>
+                                <p className='text-neutral-700' style={{ fontSize: '28px' }}>Great!</p>
                             </div>
                         ) : (
                             <div className='flex justify-center'>
-                                <p className='text-neutral-700' style={{fontSize: '28px'}}>Next Time!</p>
+                                <p className='text-neutral-700' style={{ fontSize: '28px' }}>Next Time!</p>
                             </div>
                         )}
                     </div>
@@ -463,9 +469,11 @@ function Main() {
             </div>
             <div className="sm:p-8 p-4 relative">
                 <div className="relative w-full sm:w-1/4 h-full flex items-center justify-center sm:justify-start">
-                    <p className="text-4xl font-bold">
-                        Groops
-                    </p>
+                    <button onClick={returnToHome}>
+                        <p className="text-4xl font-bold">
+                            Groops
+                        </p>
+                    </button>
                 </div>
             </div>
 

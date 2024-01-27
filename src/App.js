@@ -1,6 +1,7 @@
 import './App.css';
 import Main from './main';
-import MainReroute from './mainReroute';
+import Home from './home';
+import Error from './error';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -10,12 +11,17 @@ function App() {
         <Route path="/">
         <Route index element={
             <div>
-            <MainReroute></MainReroute>
+            <Home></Home>
           </div>
           } />
           <Route path="/*" element={
             <div>
             <Main></Main>
+          </div>
+          } />
+          <Route path="/eror" element={
+            <div>
+            <Error></Error>
           </div>
           } />
         </Route>
