@@ -63,44 +63,48 @@ function Main() {
         })
         //TODO: if we get something bad here, reroute to id not found page
         const data = await response.json();
-        let groops_data = data['Items'][0];
-        let groop_one_values_array = groops_data['groop_one_values']['SS']
-        let groop_two_values_array = groops_data['groop_two_values']['SS']
-        let groop_three_values_array = groops_data['groop_three_values']['SS']
-        let groop_four_values_array = groops_data['groop_four_values']['SS']
-        setGroopsAnswers({ 1: groop_one_values_array, 2: groop_two_values_array, 3: groop_three_values_array, 4: groop_four_values_array });
-        let newGroops = {};
-        let newOrderedGroopsArray = []
-        for (let i = 0; i < groop_one_values_array.length; i++) {
-            let currVal = groop_one_values_array[i]
-            newGroops = { ...newGroops, [currVal]: 1 };
-            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+        if (data['Items'].length < 1) {
+            navigate('/error');
+        } else {
+            let groops_data = data['Items'][0];
+            let groop_one_values_array = groops_data['groop_one_values']['SS']
+            let groop_two_values_array = groops_data['groop_two_values']['SS']
+            let groop_three_values_array = groops_data['groop_three_values']['SS']
+            let groop_four_values_array = groops_data['groop_four_values']['SS']
+            setGroopsAnswers({ 1: groop_one_values_array, 2: groop_two_values_array, 3: groop_three_values_array, 4: groop_four_values_array });
+            let newGroops = {};
+            let newOrderedGroopsArray = []
+            for (let i = 0; i < groop_one_values_array.length; i++) {
+                let currVal = groop_one_values_array[i]
+                newGroops = { ...newGroops, [currVal]: 1 };
+                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+            }
+            for (let i = 0; i < groop_two_values_array.length; i++) {
+                let currVal = groop_two_values_array[i]
+                newGroops = { ...newGroops, [currVal]: 2 };
+                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+            }
+            for (let i = 0; i < groop_three_values_array.length; i++) {
+                let currVal = groop_three_values_array[i]
+                newGroops = { ...newGroops, [currVal]: 3 };
+                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+            }
+            for (let i = 0; i < groop_four_values_array.length; i++) {
+                let currVal = groop_four_values_array[i]
+                newGroops = { ...newGroops, [currVal]: 4 };
+                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+            }
+            let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
+            setGroopNames({ 1: groops_data['groop_one_name']['S'], 2: groops_data['groop_two_name']['S'], 3: groops_data['groop_three_name']['S'], 4: groops_data['groop_four_name']['S'] })
+            setGroops(newGroops);
+            setOrderedGroopsArray(shuffledOrderedGroopsArray);
+            setGroopsSolved([]);
+            setLoading(false);
+            setAttemptsRemaining(4);
+            setAttemptsRemainingDelayed(4);
+            previousGuesses.current = [];
+            //setResultsSavedArray([]);
         }
-        for (let i = 0; i < groop_two_values_array.length; i++) {
-            let currVal = groop_two_values_array[i]
-            newGroops = { ...newGroops, [currVal]: 2 };
-            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
-        }
-        for (let i = 0; i < groop_three_values_array.length; i++) {
-            let currVal = groop_three_values_array[i]
-            newGroops = { ...newGroops, [currVal]: 3 };
-            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
-        }
-        for (let i = 0; i < groop_four_values_array.length; i++) {
-            let currVal = groop_four_values_array[i]
-            newGroops = { ...newGroops, [currVal]: 4 };
-            newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
-        }
-        let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
-        setGroopNames({ 1: groops_data['groop_one_name']['S'], 2: groops_data['groop_two_name']['S'], 3: groops_data['groop_three_name']['S'], 4: groops_data['groop_four_name']['S'] })
-        setGroops(newGroops);
-        setOrderedGroopsArray(shuffledOrderedGroopsArray);
-        setGroopsSolved([]);
-        setLoading(false);
-        setAttemptsRemaining(4);
-        setAttemptsRemainingDelayed(4);
-        previousGuesses.current = [];
-        //setResultsSavedArray([]);
     };
 
     const rerouteToRandomID = async (getUrl) => {
@@ -141,7 +145,7 @@ function Main() {
             let count_of_same_guesses = 0;
             for (let j = 0; j < 4; j++) {
                 for (let k = 0; k < 4; k++) {
-                    if (onePreviousGuess[j] == selectedTiles[k]) {
+                    if (onePreviousGuess[j] === selectedTiles[k]) {
                         count_of_same_guesses += 1;
                     }
                 }
@@ -427,7 +431,7 @@ function Main() {
     };
 
     return (
-        <div className="App flex flex-col">
+        <div className="flex flex-col bg-gray-100 h-screen">
             <div className="flex">
                 <ReactModal
                     modalOpenState={oneAwayModalOpen} contentLabelInput={"One Away Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={oneAwayModalStyle}

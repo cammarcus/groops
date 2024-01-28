@@ -14,12 +14,17 @@ function App() {
             <Home></Home>
           </div>
           } />
-          <Route path="/*" element={
+          <Route path="/:firstsegment" element={
             <div>
             <Main></Main>
           </div>
           } />
-          <Route path="/eror" element={
+          <Route path="/error" element={
+            <div>
+            <Error></Error>
+          </div>
+          } />
+          <Route path="/:firstsegement/*" element={
             <div>
             <Error></Error>
           </div>
