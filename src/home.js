@@ -31,10 +31,9 @@ function Home() {
             method: 'GET'
         });
         const data = await response.json();
-        rerouteId = data.toString();
+        rerouteId = '/' + data.toString();
         navigate(rerouteId);
     };
-
     const rerouteWithEnteredID = async () => {
         navigate(`/${userEnteredID}`);
     };

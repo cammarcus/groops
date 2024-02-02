@@ -18,7 +18,7 @@ function Main() {
     const [attempt, setAttempt] = useState(0);
     const [attemptsRemaining, setAttemptsRemaining] = useState(4);
     const [attemptsRemainingDelayed, setAttemptsRemainingDelayed] = useState(4);
-    const [newSetModalOpen, setNewSetModalOpen] = useState(false);
+    const [playAgainModalOpen, setPlayAgainModalOpen] = useState(false);
     const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
     const [isGameOver, setIsGameOver] = useState(false);
     const [oneAwayModalOpen, setOneAwayModalOpen] = useState(false);
@@ -29,12 +29,13 @@ function Main() {
     const [enterLoading, setEnterLoading] = useState(false);
     const groopColors = { 1: '#bb5588', 2: '#D999B9', 3: '#90E0F3', 4: '#D17B88' };
     const previousGuesses = useRef([]);
+    const resultsText = useRef('Groops');
     const [deselectAll, setDeselectAll] = useState(0);
     const [alreadyGuessedModalOpen, setAlreadyGuessedModalOpen] = useState(false);
     const [screenSize, setScreenSize] = useState(window.innerWidth);
-    const controls = useAnimation();
     const location = useLocation();
     const navigate = useNavigate();
+    const gamesPlayed = useRef(0);
     const { hash, pathname, search } = location;
 
     useEffect(() => {
@@ -95,26 +96,43 @@ function Main() {
                 newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
             }
             let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
+            await resetGame();
             setGroopNames({ 1: groops_data['groop_one_name']['S'], 2: groops_data['groop_two_name']['S'], 3: groops_data['groop_three_name']['S'], 4: groops_data['groop_four_name']['S'] })
             setGroops(newGroops);
             setOrderedGroopsArray(shuffledOrderedGroopsArray);
-            setGroopsSolved([]);
-            setLoading(false);
-            setAttemptsRemaining(4);
-            setAttemptsRemainingDelayed(4);
-            previousGuesses.current = [];
-            //setResultsSavedArray([]);
+            resultsText.current = resultsText.current + '\n' + groopIdInput.toString();
         }
     };
 
-    const rerouteToRandomID = async (getUrl) => {
+    const resetGame = async () => {
+        setGroopsSolved([]);
+        setLoading(false);
+        setAttemptsRemaining(4);
+        setAttemptsRemainingDelayed(4);
+        previousGuesses.current = [];
+        setResultsSavedArray([]);
+        setGameOverModalOpen(false);
+        setIsGameOver(false);
+        resultsText.current = 'Groops';
+        //setAttempt(0);
+    }
+
+
+
+    const rerouteToRandomID = async () => {
+        let newUrl = apiUrl
         let rerouteId = '/error';
-        const response = await fetch(getUrl, {
+        const response = await fetch(newUrl, {
             method: 'GET'
         })
         const data = await response.json();
-        rerouteId = data.toString();
+        rerouteId = '/' + data.toString();
         navigate(rerouteId);
+    }
+
+    const playAgain = async () => {
+        rerouteToRandomID();
+        gamesPlayed.current = gamesPlayed.current + 1;
     }
 
     const shuffleGroops = () => {
@@ -272,8 +290,34 @@ function Main() {
     }
 
     const gameOver = async () => {
+        updateSavedResultsString();
         setGameOverModalOpen(true);
     }
+
+    const updateSavedResultsString = async () => {
+        for (let i = 0; i < resultsSavedArray.length; i++) {
+            resultsText.current = resultsText.current + '\n';
+            for (let j = 0; j < resultsSavedArray[i][1]; j++) {
+                resultsText.current = resultsText.current + '🟪';
+            }
+            for (let j = 0; j < resultsSavedArray[i][2]; j++) {
+                resultsText.current = resultsText.current + '🟧';
+            }
+            for (let j = 0; j < resultsSavedArray[i][3]; j++) {
+                resultsText.current = resultsText.current + '🟨';
+            }
+            for (let j = 0; j < resultsSavedArray[i][4]; j++) {
+                resultsText.current = resultsText.current + '🟦';
+            }
+        }
+        navigator.clipboard.writeText(resultsText.current);
+    };
+
+
+    const handleCopy = async () => {
+        let textToCopy = 'Groops\n193049\n🟪🟧🟨🟨\n\n🟩🟪🟧🟨\n\n🟩🟪🟧🟨';
+        navigator.clipboard.writeText(resultsText.current);
+    };
 
     useEffect(() => {
         const isGameOverFunction = async () => {
@@ -346,7 +390,7 @@ function Main() {
                 </div>) : (
                 <div
                     key={index}
-                    className='flex justify-center rounded-md w-full h-full min-h-24 mb-2'
+                    className='flex justify-center rounded-md w-full h-full min-h-24 sm:mb-2 mb-1'
                     style={{ backgroundColor: groopColors[groopsSolved[index]] }}
                 >
                     <div className='flex justify-center items-center flex-col'>
@@ -394,7 +438,7 @@ function Main() {
         let groopIdInput = null;
         groopIdInput = pathname.substring(1);
         getGroops(groopIdInput);
-    }, [])
+    }, [gamesPlayed.current])
 
     const oneAwayModalStyle = {
         overlay: {
@@ -430,6 +474,24 @@ function Main() {
         },
     };
 
+    const playAgainModalStyle = {
+        overlay: {
+            backgroundColor: 'rgba(0, 0, 0, .05)',
+        },
+        content: {
+            width: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '55%' : '70%',
+            height: '65%',
+            top: '40%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            padding: 8,
+            backgroundColor: '#ffffff',
+        },
+    };
+
     return (
         <div className="flex flex-col bg-gray-100 h-screen">
             <div className="flex">
@@ -447,8 +509,15 @@ function Main() {
                 </ReactModal>
             </div>
             <div className='flex'>
+                <ReactModal
+                    modalOpenState={playAgainModalOpen} contentLabelInput={"Play Again Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={playAgainModalStyle}
+                >
+                    <p className='text-neutral-200'>Play Again</p>
+                </ReactModal>
+            </div>
+            <div className='flex'>
                 <ReactModal modalOpenState={gameOverModalOpen} contentLabelInput={"Game Over Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={gameOverModalStyle}>
-                    <div className='flex flex-col justify-center'>
+                    <div className='h-full flex flex-col'>
                         <div className='flex justify-end'>
                             <button onClick={() => setGameOverModalOpen(false)}>
                                 <div>
@@ -456,20 +525,39 @@ function Main() {
                                 </div>
                             </button>
                         </div>
-                        {userWon ? (
-                            <div className='flex justify-center'>
-                                <p className='text-neutral-700' style={{ fontSize: '28px' }}>Great!</p>
+                        <div className='flex flex-col justify-center'>
+                            {userWon ? (
+                                <div className='flex justify-center'>
+                                    <p className='text-neutral-700' style={{ fontSize: '28px' }}>Great!</p>
+                                </div>
+                            ) : (
+                                <div className='flex justify-center'>
+                                    <p className='text-neutral-700' style={{ fontSize: '28px' }}>Next Time!</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className='flex flex-col items-center flex-grow'>
+                            <DynamicResultsImage></DynamicResultsImage>
+                        </div>
+                        <div className='flex flex-row relative justify-center gap-6' style={{ bottom: '10%' }}>
+                            <div className='bg-orange-200 border rounded-md p-2 w-2/5'>
+                                <button onClick={handleCopy} className='w-full h-full'>
+                                    <p className='text-lg font-bold'>
+                                        Share
+                                    </p>
+                                </button>
                             </div>
-                        ) : (
-                            <div className='flex justify-center'>
-                                <p className='text-neutral-700' style={{ fontSize: '28px' }}>Next Time!</p>
+                            <div className='bg-orange-200 border rounded-md p-2 w-2/5'>
+                                <button onClick={playAgain} className='w-full h-full'>
+                                    <p className='text-lg font-bold'>
+                                        Play Again
+                                    </p>
+                                </button>
                             </div>
-                        )}
-                    </div>
-                    <div className='flex flex-col'>
-                        <DynamicResultsImage></DynamicResultsImage>
+                        </div>
                     </div>
                 </ReactModal>
+
             </div>
             <div className="sm:p-8 p-4 relative">
                 <div className="relative w-full sm:w-1/4 h-full flex items-center justify-center sm:justify-start">
