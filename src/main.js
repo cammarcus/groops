@@ -149,6 +149,10 @@ function Main() {
         navigate(rerouteId);
     }
 
+    const rerouteToCreate = async () => {
+        navigate('/create');
+    }
+
     const playAgain = async () => {
         rerouteToRandomID();
     }
@@ -673,7 +677,7 @@ function Main() {
                 </ReactModal>
 
             </div>
-            <div className="sm:py-8 pt-4 relative">
+            <div className="sm:py-8 pt-4 px-4 relative">
                 <div className="relative w-full sm:w-1/4 h-full flex items-center justify-center sm:justify-start">
                     <button onClick={returnToHome}>
                         <p className="text-4xl font-bold">
@@ -687,7 +691,7 @@ function Main() {
                 <button onClick={rerouteToRandomID}>
                     <ImShuffle style={{ fontSize: '20px' }} />
                 </button>
-                <button>
+                <button onClick={rerouteToCreate}>
                     <MdOutlineCreate style={{ fontSize: '20px' }} />
                 </button>
                 <button onClick={() => {setInstructionsModalOpen(true)}}>
