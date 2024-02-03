@@ -4,7 +4,13 @@ import Tile from './components/tile';
 import { GoDotFill } from "react-icons/go";
 import { MdOutlineCancel } from "react-icons/md";
 import { FaSquare } from "react-icons/fa";
+import { RiFileCopyLine } from "react-icons/ri";
+import { FaPlay } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
+import { ImShuffle } from "react-icons/im";
+import { FaQuestion } from "react-icons/fa";
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { MdOutlineCreate } from "react-icons/md";
 import ReactModal from './components/reactModal';
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -32,10 +38,12 @@ function Main() {
     const resultsText = useRef('Groops');
     const [deselectAll, setDeselectAll] = useState(0);
     const [alreadyGuessedModalOpen, setAlreadyGuessedModalOpen] = useState(false);
+    const [instructionsModalOpen, setInstructionsModalOpen] = useState(false);
+    const [resultsCopiedModalOpen, setResultsCopiedModalOpen] = useState(false);
     const [screenSize, setScreenSize] = useState(window.innerWidth);
     const location = useLocation();
     const navigate = useNavigate();
-    const gamesPlayed = useRef(0);
+    const [fetchError, setFetchError] = useState(false);
     const { hash, pathname, search } = location;
 
     useEffect(() => {
@@ -53,54 +61,66 @@ function Main() {
     }, []); // Empty dependency array means this effect runs once after initial render
 
     const getGroops = async (groopIdInput) => {
+        let gamesSeen = parseInt(localStorage.getItem('gamesAlreadyPlayed'));
+        if (!gamesSeen || (gamesSeen && gamesSeen == 5)) {
+            setInstructionsModalOpen(true);
+            localStorage.setItem('gamesAlreadyPlayed',1);
+        } else {
+            localStorage.setItem('gamesAlreadyPlayed',gamesSeen+1);
+        }
         setSelectedTiles([]);
         setLoading(true);
         let getUrl = apiUrl
         if (groopIdInput) {
             getUrl = getUrl + '/' + groopIdInput.toString();
         }
-        const response = await fetch(getUrl, {
-            method: 'GET'
-        })
-        //TODO: if we get something bad here, reroute to id not found page
-        const data = await response.json();
-        if (data['Items'].length < 1) {
-            navigate('/error');
-        } else {
-            let groops_data = data['Items'][0];
-            let groop_one_values_array = groops_data['groop_one_values']['SS']
-            let groop_two_values_array = groops_data['groop_two_values']['SS']
-            let groop_three_values_array = groops_data['groop_three_values']['SS']
-            let groop_four_values_array = groops_data['groop_four_values']['SS']
-            setGroopsAnswers({ 1: groop_one_values_array, 2: groop_two_values_array, 3: groop_three_values_array, 4: groop_four_values_array });
-            let newGroops = {};
-            let newOrderedGroopsArray = []
-            for (let i = 0; i < groop_one_values_array.length; i++) {
-                let currVal = groop_one_values_array[i]
-                newGroops = { ...newGroops, [currVal]: 1 };
-                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+        try {
+            const response = await fetch(getUrl, {
+                method: 'GET'
+            })
+            //TODO: if we get something bad here, reroute to id not found page
+            const data = await response.json();
+            if (data['Items'].length < 1) {
+                navigate('/error');
+            } else {
+                let groops_data = data['Items'][0];
+                let groop_one_values_array = groops_data['groop_one_values']['SS']
+                let groop_two_values_array = groops_data['groop_two_values']['SS']
+                let groop_three_values_array = groops_data['groop_three_values']['SS']
+                let groop_four_values_array = groops_data['groop_four_values']['SS']
+                setGroopsAnswers({ 1: groop_one_values_array, 2: groop_two_values_array, 3: groop_three_values_array, 4: groop_four_values_array });
+                let newGroops = {};
+                let newOrderedGroopsArray = []
+                for (let i = 0; i < groop_one_values_array.length; i++) {
+                    let currVal = groop_one_values_array[i]
+                    newGroops = { ...newGroops, [currVal]: 1 };
+                    newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+                }
+                for (let i = 0; i < groop_two_values_array.length; i++) {
+                    let currVal = groop_two_values_array[i]
+                    newGroops = { ...newGroops, [currVal]: 2 };
+                    newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+                }
+                for (let i = 0; i < groop_three_values_array.length; i++) {
+                    let currVal = groop_three_values_array[i]
+                    newGroops = { ...newGroops, [currVal]: 3 };
+                    newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+                }
+                for (let i = 0; i < groop_four_values_array.length; i++) {
+                    let currVal = groop_four_values_array[i]
+                    newGroops = { ...newGroops, [currVal]: 4 };
+                    newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
+                }
+                let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
+                await resetGame();
+                setGroopNames({ 1: groops_data['groop_one_name']['S'], 2: groops_data['groop_two_name']['S'], 3: groops_data['groop_three_name']['S'], 4: groops_data['groop_four_name']['S'] })
+                setGroops(newGroops);
+                setOrderedGroopsArray(shuffledOrderedGroopsArray);
+                resultsText.current = resultsText.current + '\n' + groopIdInput.toString();
             }
-            for (let i = 0; i < groop_two_values_array.length; i++) {
-                let currVal = groop_two_values_array[i]
-                newGroops = { ...newGroops, [currVal]: 2 };
-                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
-            }
-            for (let i = 0; i < groop_three_values_array.length; i++) {
-                let currVal = groop_three_values_array[i]
-                newGroops = { ...newGroops, [currVal]: 3 };
-                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
-            }
-            for (let i = 0; i < groop_four_values_array.length; i++) {
-                let currVal = groop_four_values_array[i]
-                newGroops = { ...newGroops, [currVal]: 4 };
-                newOrderedGroopsArray = [...newOrderedGroopsArray, currVal]
-            }
-            let shuffledOrderedGroopsArray = shuffleArray(newOrderedGroopsArray);
-            await resetGame();
-            setGroopNames({ 1: groops_data['groop_one_name']['S'], 2: groops_data['groop_two_name']['S'], 3: groops_data['groop_three_name']['S'], 4: groops_data['groop_four_name']['S'] })
-            setGroops(newGroops);
-            setOrderedGroopsArray(shuffledOrderedGroopsArray);
-            resultsText.current = resultsText.current + '\n' + groopIdInput.toString();
+        }
+        catch (error) {
+            setFetchError(true);
         }
     };
 
@@ -114,10 +134,9 @@ function Main() {
         setGameOverModalOpen(false);
         setIsGameOver(false);
         resultsText.current = 'Groops';
+        setFetchError(false);
         //setAttempt(0);
     }
-
-
 
     const rerouteToRandomID = async () => {
         let newUrl = apiUrl
@@ -132,7 +151,6 @@ function Main() {
 
     const playAgain = async () => {
         rerouteToRandomID();
-        gamesPlayed.current = gamesPlayed.current + 1;
     }
 
     const shuffleGroops = () => {
@@ -315,8 +333,15 @@ function Main() {
 
 
     const handleCopy = async () => {
-        let textToCopy = 'Groops\n193049\n🟪🟧🟨🟨\n\n🟩🟪🟧🟨\n\n🟩🟪🟧🟨';
-        navigator.clipboard.writeText(resultsText.current);
+        try {
+            await navigator.clipboard.writeText(resultsText.current);
+            setResultsCopiedModalOpen(true);
+            setTimeout(() => {
+                setResultsCopiedModalOpen(false);
+            }, 1200);
+        } catch (e) {
+            //console.log('oops')
+        }
     };
 
     useEffect(() => {
@@ -384,8 +409,8 @@ function Main() {
                     style={{ backgroundColor: groopColors[groopsSolved[index]] }}
                 >
                     <div className='flex justify-center items-center flex-col'>
-                        <p className='p-0 m-0 uppercase'>{groopNames[groopsSolved[index]]}</p>
-                        <p className='uppercase'>{answersArrayToString(groopsAnswers[groopsSolved[index]])}</p>
+                        <p className='p-0 m-0 uppercase text-center'>{groopNames[groopsSolved[index]]}</p>
+                        <p className='uppercase text-center'>{answersArrayToString(groopsAnswers[groopsSolved[index]])}</p>
                     </div>
                 </div>) : (
                 <div
@@ -394,8 +419,8 @@ function Main() {
                     style={{ backgroundColor: groopColors[groopsSolved[index]] }}
                 >
                     <div className='flex justify-center items-center flex-col'>
-                        <p className='p-0 m-0 uppercase'>{groopNames[groopsSolved[index]]}</p>
-                        <p className='uppercase'>{answersArrayToString(groopsAnswers[groopsSolved[index]])}</p>
+                        <p className='p-0 m-0 uppercase text-center'>{groopNames[groopsSolved[index]]}</p>
+                        <p className='uppercase text-center'>{answersArrayToString(groopsAnswers[groopsSolved[index]])}</p>
                     </div>
                 </div>
             )
@@ -433,12 +458,16 @@ function Main() {
         return answersString;
     }
 
+    const closeInstructionsModal = () => {
+        setInstructionsModalOpen(false);
+    }
+
     useEffect(() => {
         //TODO: if want random, use null, if not, use the value
         let groopIdInput = null;
         groopIdInput = pathname.substring(1);
         getGroops(groopIdInput);
-    }, [gamesPlayed.current])
+    }, [pathname])
 
     const oneAwayModalStyle = {
         overlay: {
@@ -456,14 +485,30 @@ function Main() {
         },
     };
 
+    const copyResultsModalStyle = {
+        overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+        },
+        content: {
+            width: window.innerWidth > 1000 ? '30%' : window.innerWidth > 600 ? '30%' : window.innerWidth > 400 ? '40%' : '60%',
+            left: '50%',
+            right: 'auto',
+            top: '90%',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            padding: 8,
+            backgroundColor: '#ffffff',
+        },
+    };
+
     const gameOverModalStyle = {
         overlay: {
             backgroundColor: 'rgba(0, 0, 0, .05)',
         },
         content: {
-            width: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '55%' : '70%',
+            width: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '55%' : '80%',
             height: '65%',
-            top: '40%',
+            top: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '45%' : '50%',
             left: '50%',
             right: 'auto',
             bottom: 'auto',
@@ -479,7 +524,7 @@ function Main() {
             backgroundColor: 'rgba(0, 0, 0, .05)',
         },
         content: {
-            width: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '55%' : '70%',
+            width: window.innerWidth > 1000 ? '40%' : window.innerWidth > 600 ? '55%' : '80%',
             height: '65%',
             top: '40%',
             left: '50%',
@@ -489,6 +534,27 @@ function Main() {
             transform: 'translate(-50%, -50%)',
             padding: 8,
             backgroundColor: '#ffffff',
+        },
+    };
+
+    const instructionsModalStyle = {
+        overlay: {
+            backgroundColor: 'rgba(0, 0, 0, .05)',
+        },
+        content: {
+            width: window.innerWidth > 1000 ? '50%' : window.innerWidth > 600 ? '70%' : '100%',
+            height: window.innerWidth > 1000 ? '65%' : window.innerWidth > 600 ? '70%' : '75%',
+            top: window.innerWidth > 1000 ? '50%' : window.innerWidth > 600 ? '55%' : '70%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            position: 'absolute',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            padding: 8,
+            backgroundColor: '#ffffff',
+            borderRadius: '10px',
+            overflowY: 'auto',
         },
     };
 
@@ -516,6 +582,48 @@ function Main() {
                 </ReactModal>
             </div>
             <div className='flex'>
+                <ReactModal
+                    modalOpenState={resultsCopiedModalOpen} contentLabelInput={"Copy Results Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={copyResultsModalStyle}
+                >
+                    <div className='flex flex-row items-center justify-center gap-4'>
+                        <p className='text-neutral-800'>Copied Results</p>
+                        <FaCheckCircle className='text-green-500' />
+                    </div>
+                </ReactModal>
+            </div>
+            <div className='flex'>
+                <ReactModal
+                    modalOpenState={instructionsModalOpen} contentLabelInput={"Instructions Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={instructionsModalStyle}
+                >
+                    <div>
+                        <div className='absolute right-0 top-0 p-2'>
+                            <button onClick={closeInstructionsModal}>
+                                <div>
+                                    <MdOutlineCancel style={{ fontSize: '20px' }}></MdOutlineCancel>
+                                </div>
+                            </button>
+                        </div>
+                        <div className='p-5 mt-2'>
+                            <p className='text-neutral-800 text-2xl font-bold'>How to play Groops</p>
+
+                            <p className='text-neutral-800 font-bold mt-3 text-md'>Find groups of four items that share something in common.</p>
+                            <li className='text-neutral-800 text-md'>Select four items and tap 'Submit' to check if your guess is correct.</li>
+                            <li className='text-neutral-800 text-md'>Find the groups without making 4 mistakes!</li>
+
+                            <p className='text-neutral-800 font-bold mt-3 text-md'>Category Examples</p>
+                            <li className='text-neutral-800 text-md'>FISH: Bass, Flounder, Salmon, Trout</li>
+                            <li className='text-neutral-800 text-md'>FIRE ___: Ant, Drill, Island, Opal</li>
+
+                            <p className='text-neutral-800 mt-3 text-md'>Categories will always be more specific than "5-LETTER WORDS," "NAMES" or "VERBS."</p>
+                            <p className='text-neutral-800 mt-3 text-md'>Each puzzle has exactly one solution. Watch out for words that seem to belong to multiple categories!</p>
+
+                            {/*<p className='text-neutral-800 mt-3 text-md'>Blah Blah</p>*/}
+
+                        </div>
+                    </div>
+                </ReactModal>
+            </div>
+            <div className='flex'>
                 <ReactModal modalOpenState={gameOverModalOpen} contentLabelInput={"Game Over Modal"} modalFact={document.getElementById('root') || undefined} modalStyle={gameOverModalStyle}>
                     <div className='h-full flex flex-col'>
                         <div className='flex justify-end'>
@@ -539,19 +647,25 @@ function Main() {
                         <div className='flex flex-col items-center flex-grow'>
                             <DynamicResultsImage></DynamicResultsImage>
                         </div>
-                        <div className='flex flex-row relative justify-center gap-6' style={{ bottom: '10%' }}>
-                            <div className='bg-orange-200 border rounded-md p-2 w-2/5'>
-                                <button onClick={handleCopy} className='w-full h-full'>
-                                    <p className='text-lg font-bold'>
+                        <div className='flex flex-row relative justify-center md:gap-6 gap-2' style={{ bottom: '10%' }}>
+                            <div className='bg-orange-200 border rounded-md p-2 md:w-2/5 w-1/2'>
+                                <button onClick={handleCopy} className='w-full h-full flex flex-row items-center justify-center md:gap-4 gap-2'>
+                                    <p className='md:text-lg text-sm font-bold'>
                                         Share
                                     </p>
+                                    <div>
+                                        <RiFileCopyLine className='lg:text-lg md:text-md text-xs' />
+                                    </div>
                                 </button>
                             </div>
-                            <div className='bg-orange-200 border rounded-md p-2 w-2/5'>
-                                <button onClick={playAgain} className='w-full h-full'>
-                                    <p className='text-lg font-bold'>
+                            <div className='bg-orange-200 border rounded-md p-2 md:w-2/5 w-1/2'>
+                                <button onClick={playAgain} className='w-full h-full flex flex-row items-center justify-center md:gap-4 gap-2'>
+                                    <p className='md:text-lg text-sm font-bold'>
                                         Play Again
                                     </p>
+                                    <div>
+                                        <FaPlay className='lg:text-lg md:text-md text-xs' />
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -559,7 +673,7 @@ function Main() {
                 </ReactModal>
 
             </div>
-            <div className="sm:p-8 p-4 relative">
+            <div className="sm:py-8 pt-4 relative">
                 <div className="relative w-full sm:w-1/4 h-full flex items-center justify-center sm:justify-start">
                     <button onClick={returnToHome}>
                         <p className="text-4xl font-bold">
@@ -569,6 +683,17 @@ function Main() {
                 </div>
             </div>
 
+            <div className='flex justify-end items-center gap-4 px-2 pb-1'>
+                <button onClick={rerouteToRandomID}>
+                    <ImShuffle style={{ fontSize: '20px' }} />
+                </button>
+                <button>
+                    <MdOutlineCreate style={{ fontSize: '20px' }} />
+                </button>
+                <button onClick={() => {setInstructionsModalOpen(true)}}>
+                    <FaQuestion style={{ fontSize: '20px' }} />
+                </button>
+            </div>
             <div className="border-b border-gray-300"></div>
             <div className='flex justify-center items-center flex-col'>
                 <div className='p-4'>
