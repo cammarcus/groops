@@ -621,8 +621,6 @@ function Main() {
                             <p className='text-neutral-800 mt-3 text-md'>Categories will always be more specific than "5-LETTER WORDS," "NAMES" or "VERBS."</p>
                             <p className='text-neutral-800 mt-3 text-md'>Each puzzle has exactly one solution. Watch out for words that seem to belong to multiple categories!</p>
 
-                            {/*<p className='text-neutral-800 mt-3 text-md'>Blah Blah</p>*/}
-
                         </div>
                     </div>
                 </ReactModal>
