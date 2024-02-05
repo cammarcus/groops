@@ -126,18 +126,20 @@ function Create() {
 
                 <div>
                     {createdGroops ? (
-                        <div>
-                            <div>
-                                <p>Groop Id: {createdid}</p>
-                                <button onClick={goToGame}>
-                                    <p>
-                                        Play the game you created!
-                                    </p>
-                                </button>
+                        <div className='flex flex-col items-center'>
+                            <div className='mt-4 flex-col items-center'>
+                                <p className='text-center'>Groop Id: {createdid}</p>
+                                <div className='mt-4'>
+                                    <button onClick={goToGame}>
+                                        <p>
+                                            Play the game you created!
+                                        </p>
+                                    </button>
+                                </div>
                             </div>
-                            <div>
+                            <div className='mt-4'>
                                 <button onClick={returnToHome}>
-                                <p>Return Home</p>
+                                    <p>Return Home</p>
                                 </button>
                             </div>
                         </div>
@@ -153,6 +155,7 @@ function Create() {
                                         <input title='groop one name'
                                             onChange={(e) => setGroopOneName(e.target.value)}
                                             placeholder='name'
+                                            className='bg-gray-100'
                                         ></input>
                                     </div>
                                     <div className='flex flex-col'>
@@ -165,18 +168,22 @@ function Create() {
                                             <input title='groop one value'
                                                 onChange={(e) => setGroopOneValueOne(e.target.value)}
                                                 placeholder='a'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop one value'
                                                 onChange={(e) => setGroopOneValueTwo(e.target.value)}
                                                 placeholder='b'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop one value'
                                                 onChange={(e) => setGroopOneValueThree(e.target.value)}
                                                 placeholder='c'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop one value'
                                                 onChange={(e) => setGroopOneValueFour(e.target.value)}
                                                 placeholder='d'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>
@@ -191,6 +198,7 @@ function Create() {
                                             <input title='groop two name'
                                                 onChange={(e) => setGroopTwoName(e.target.value)}
                                                 placeholder='name'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>
@@ -204,18 +212,22 @@ function Create() {
                                             <input title='groop two value'
                                                 onChange={(e) => setGroopTwoValueOne(e.target.value)}
                                                 placeholder='a'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop two value'
                                                 onChange={(e) => setGroopTwoValueTwo(e.target.value)}
                                                 placeholder='b'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop two value'
                                                 onChange={(e) => setGroopTwoValueThree(e.target.value)}
                                                 placeholder='c'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop two value'
                                                 onChange={(e) => setGroopTwoValueFour(e.target.value)}
                                                 placeholder='d'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>
@@ -230,6 +242,7 @@ function Create() {
                                             <input title='groop three name'
                                                 onChange={(e) => setGroopThreeName(e.target.value)}
                                                 placeholder='name'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>
@@ -243,18 +256,22 @@ function Create() {
                                             <input title='groop three value'
                                                 onChange={(e) => setGroopThreeValueOne(e.target.value)}
                                                 placeholder='a'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop three value'
                                                 onChange={(e) => setGroopThreeValueTwo(e.target.value)}
                                                 placeholder='b'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop three value'
                                                 onChange={(e) => setGroopThreeValueThree(e.target.value)}
                                                 placeholder='c'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop three value'
                                                 onChange={(e) => setGroopThreeValueFour(e.target.value)}
                                                 placeholder='d'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>
@@ -269,6 +286,7 @@ function Create() {
                                             <input title='groop four name'
                                                 onChange={(e) => setGroopFourName(e.target.value)}
                                                 placeholder='name'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>
@@ -282,18 +300,22 @@ function Create() {
                                             <input title='groop four value'
                                                 onChange={(e) => setGroopFourValueOne(e.target.value)}
                                                 placeholder='a'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop four value'
                                                 onChange={(e) => setGroopFourValueTwo(e.target.value)}
                                                 placeholder='b'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop four value'
                                                 onChange={(e) => setGroopFourValueThree(e.target.value)}
                                                 placeholder='c'
+                                                className='bg-gray-100'
                                             ></input>
                                             <input title='groop four value'
                                                 onChange={(e) => setGroopFourValueFour(e.target.value)}
                                                 placeholder='d'
+                                                className='bg-gray-100'
                                             ></input>
                                         </div>
                                     </div>

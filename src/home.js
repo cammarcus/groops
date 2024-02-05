@@ -72,7 +72,7 @@ function Home() {
                 <p className="text-2xl font-serif font-bold mb-4">Have an id?</p>
                 <input
                     title="Enter id"
-                    className="p-2 border border-gray-300 rounded-md mb-4"
+                    className="p-2 border border-gray-300 rounded-md mb-4 bg-gray-100"
                     value={userEnteredID}
                     onChange={(e) => setUserEnteredID(e.target.value)}
                 />
