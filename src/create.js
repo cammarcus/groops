@@ -109,9 +109,9 @@ function Create() {
                 </div>
                 <div className="border-b border-gray-300 w-full"></div>
                 <div className="w-full h-full flex items-center justify-center mt-2">
-                    <button onClick={returnToHome} className='text-2xl font-bold'>
+                    <p className='text-2xl font-bold'>
                         Create Your Own Game
-                    </button>
+                    </p>
                 </div>
 
                 <div className='flex flex-col items-center'>
